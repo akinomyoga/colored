@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function colour {
     # -rwxr-xr-x  1 k-murase jlc   74 Nov 11 15:27 escape-regex
