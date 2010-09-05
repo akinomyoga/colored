@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    ls -la | ~/.mwg/modls
+else
+    ls -la "$@" | ~/.mwg/modls
+fi
