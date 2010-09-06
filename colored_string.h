@@ -107,6 +107,10 @@ public:
   void set_bc(byte c,int index){
     colors[index]=colors[index]&0x00FF|c<<8;
   }
+  void set(word c){color=c;}
+  void set(word c,int index){colors[index]=c;}
+  word get() const{return color;}
+  word get(int index) const{return colors[index];}
 public:
   void print(){
     word c;

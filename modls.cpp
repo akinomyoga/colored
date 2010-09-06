@@ -80,7 +80,11 @@ void read_line(read_data& data,const std::string line){
   scanner.read(data.user,"S");
   scanner.read(data.space1,"s");
   scanner.read(data.group,"S");
-  scanner.read(data.size,"sSs");
+  if(data.mods[0]=='b'||data.mods[0]=='c'){
+    scanner.read(data.size,"sSsSs"); // number, number
+  }else{
+    scanner.read(data.size,"sSs");
+  }
   scanner.read(data.time,"SsSs");
   scanner.read(data.file,"S");
   scanner.read(data.note,"*");
@@ -134,26 +138,37 @@ ft::map_t extmap;
 void color_filename(line_data& ldata){
   // filetype and color
   switch(ldata.mods[0]){
-  case 'd':ldata.file.set_fc(cc::blue);return;
-  case 'l':ldata.file.set_fc(cc::cyan);return;
+  case 'd':
+    ldata.file.set_fc(cc::blue);
+    ldata.mods.set_fc(cc::blue,0);
+    return;
+  case 'l':
+    ldata.file.set_fc(cc::cyan);
+    ldata.mods.set_fc(cc::cyan,0);
+    return;
   case 'b': // block device
   case 'c': // character device
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::yellow);
+    ldata.mods.set_bc(cc::black,0);
+    ldata.mods.set_fc(cc::yellow,0);
     return;
   case 's': // socket ?
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::green);
+    ldata.mods.set_bc(cc::black,0);
+    ldata.mods.set_fc(cc::green,0);
     return;
   case 'p': // pipe (fifo)
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::cyan);
+    ldata.mods.set_bc(cc::black,0);
+    ldata.mods.set_fc(cc::cyan,0);
     return;
   }
 
   if(ldata.mods[9]=='t'){
-    ldata.file.set_bc(cc::darkG);
-    ldata.file.set_fc(cc::white);
+    ldata.file.set(ldata.mods.get(9));
     return;
   }else if(ldata.mods[3]=='x'){
     ldata.file.set_fc(cc::green);
@@ -181,7 +196,7 @@ void process_line(const std::string line){
   read_line(rdata,line);
 
   line_data ldata(rdata);
-  if(ldata.mods.size()!=10){
+  if(ldata.mods.size()!=10&&ldata.mods.size()!=11){
     puts(line.c_str());
     return;
   }
@@ -198,9 +213,16 @@ void process_line(const std::string line){
     case 'w':ldata.mods.set_fc(cc::red,i);break;
     case 'x':ldata.mods.set_fc(cc::green,i);break;
     case '-':ldata.mods.set_fc(cc::gray,i);break;
+    case 't':
+      ldata.mods.set_fc(cc::white,i);
+      if(ldata.mods[i-1]=='w')
+        ldata.mods.set_bc(cc::darkG,i);
+      else
+        ldata.mods.set_bc(cc::darkB,i);
+      break;
     default:
       ldata.mods.set_fc(cc::white,i);
-      ldata.mods.set_bc(cc::darkG,i);
+      ldata.mods.set_bc(cc::black,i);
       break;
     }
   }
