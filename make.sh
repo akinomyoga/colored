@@ -6,7 +6,20 @@ test -d $outdir || mkdir $outdir
 bindir=~/bin
 test -d $bindir || mkdir $bindir
 
-g++ modls.cpp -o $outdir/modls
-cp l $bindir
-cp ll $bindir
-cp la $bindir
+if ! [ -z "$(ls --help|grep -e'--time-style=STYLE')" ]; then
+    supported_time_style=true
+else
+    supported_time_style=false
+fi
+
+#g++ -o $outdir/modls modls.cpp
+if supported_time_style; then
+    filter=(sed -e "s/ls /ls --time-style='+%010s' /" -e "s|/modls|/modls -t|")
+    cat l  | "${filter[@]}" > $bindir/l
+    cat ll | "${filter[@]}" > $bindir/ll
+    cat la | "${filter[@]}" > $bindir/la
+else
+    cp l $bindir/l
+    cp ll $bindir/ll
+    cp la $bindir/la
+fi

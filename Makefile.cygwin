@@ -1,4 +1,4 @@
-# Makefile
+# -*- Makefile -*-
 
 BINDIR=~/.mwg
 
@@ -9,4 +9,4 @@ $(BINDIR):
 	test -d $(BINDIR) || mkdir $(BINDIR)
 
 $(BINDIR)/modls.exe: modls.cpp scanner.h colored_string.h $(BINDIR)
-	g++ modls.cpp -o$@
+	g++.cyg modls.cpp -o$@
