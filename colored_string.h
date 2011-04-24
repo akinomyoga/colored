@@ -77,14 +77,21 @@ public:
   word* colors;
   std::string str;
 public:
-  colored_string(const std::string& str):str(str){
-    this->colors=new word[str.size()];
-    for(int i=0,iM=str.size();i<iM;i++)
-      colors[i]=cc::cc_default;
+  colored_string(const std::string& str):str(str),colors(NULL){
+    this->alloc_colors(str.size());
     color=cc::cc_default;
   }
   ~colored_string(){
     delete[] this->colors;
+  }
+private:
+  void alloc_colors(int size){
+    if(this->colors)
+      delete[] this->colors;
+
+    this->colors=new word[size];
+    for(int i=0;i<size;i++)
+      colors[i]=cc::cc_default;
   }
 public:
   char& operator[](int index){
@@ -94,6 +101,18 @@ public:
     return str[index];
   }
   int size() const{return str.size();}
+  colored_string& operator=(const char* str){
+    int oldsize=this->str.size();
+    word* oldcolors=this->colors;
+    this->colors=NULL;
+
+    this->str=str;
+    int newsize=this->str.size();
+    this->alloc_colors(newsize);
+    std::memcpy(this->colors,oldcolors,sizeof(word)*std::min(oldsize,newsize));
+
+    delete[] oldcolors;
+  }
 public:
   void set_fc(byte c){
     color=color&0xFF00|c;

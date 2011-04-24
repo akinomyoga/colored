@@ -27,6 +27,7 @@ struct ft{
     // raster images
     map[".bmp"]=ft::image;
     map[".cd5"]=ft::image;
+    map[".cur"]=ft::image;
     map[".ecw"]=ft::image;
     map[".fits"]=ft::image;
     map[".gif"]=ft::image;
@@ -34,6 +35,7 @@ struct ft{
     map[".ilbm"]=ft::image;
     map[".img"]=ft::image;
     map[".jfif"]=ft::image;
+    map[".jpe"]=ft::image;
     map[".jpeg"]=ft::image;
     map[".jpg"]=ft::image;
     map[".mng"]=ft::image;
@@ -45,6 +47,8 @@ struct ft{
     map[".pnm"]=ft::image;
     map[".ppm"]=ft::image;
     map[".raw"]=ft::image;
+    map[".ras"]=ft::image;
+    map[".rgb"]=ft::image;
     map[".rle"]=ft::image;
     map[".sid"]=ft::image;
     map[".tga"]=ft::image;
@@ -60,19 +64,49 @@ struct ft{
     map[".cgm"]=ft::image;
     map[".emf"]=ft::image;
     map[".eps"]=ft::image;
+    map[".fig"]=ft::image;
     map[".jps"]=ft::image;
     map[".mpo"]=ft::image;
     map[".odg"]=ft::image;
-    map[".pdf"]=ft::image;
     map[".pgml"]=ft::image;
     map[".pns"]=ft::image;
-    map[".ps"]=ft::image;
     map[".svg"]=ft::image;
     map[".svgz"]=ft::image;
     map[".swf"]=ft::image;
     map[".vml"]=ft::image;
     map[".wmf"]=ft::image;
     map[".wml"]=ft::image;
+
+    map[".btif"]=ft::image;
+    map[".cmx"]=ft::image;
+    map[".dwg"]=ft::image;
+    map[".dxf"]=ft::image;
+    map[".fbs"]=ft::image;
+    map[".fpx"]=ft::image;
+    map[".fst"]=ft::image;
+    map[".g3"]=ft::image;
+    map[".ief"]=ft::image;
+    map[".mdi"]=ft::image;
+    map[".mmr"]=ft::image;
+    map[".npx"]=ft::image;
+    map[".pct"]=ft::image;
+    map[".mdi"]=ft::image;
+    map[".pic"]=ft::image;
+    map[".psd"]=ft::image;
+    map[".rlc"]=ft::image;
+    map[".wbmp"]=ft::image;
+    map[".xif"]=ft::image;
+
+    // documents
+    map[".chm"]=ft::image;
+    map[".div"]=ft::image;
+    map[".djv"]=ft::image;
+    map[".djvu"]=ft::image;
+    map[".htm"]=ft::image;
+    map[".html"]=ft::image;
+    map[".pdf"]=ft::image;
+    map[".ps"]=ft::image;
+    map[".shtml"]=ft::image;
     map[".xps"]=ft::image;
 
     // archives
@@ -128,19 +162,79 @@ struct ft{
     map[".zip"]=ft::archive;
     map[".zoo"]=ft::archive;
 
-    // media
+    // video
     map[".3g2"]=ft::media;
     map[".3gp"]=ft::media;
+    map[".asf"]=ft::media;
+    map[".asx"]=ft::media;
+    map[".avi"]=ft::media;
+    map[".fli"]=ft::media;
+    map[".fvt"]=ft::media;
+    map[".h261"]=ft::media;
+    map[".h263"]=ft::media;
+    map[".h264"]=ft::media;
+    map[".jpgm"]=ft::media;
+    map[".jpgv"]=ft::media;
+    map[".jpm"]=ft::media;
+    map[".m1v"]=ft::media;
+    map[".m2v"]=ft::media;
+    map[".m4u"]=ft::media;
+    map[".mj2"]=ft::media;
+    map[".mjp2"]=ft::media;
+    map[".mov"]=ft::media;
+    map[".movie"]=ft::media;
+    map[".mov"]=ft::media;
+    map[".mp4"]=ft::media;
+    map[".mp4v"]=ft::media;
+    map[".mpe"]=ft::media;
+    map[".mpeg"]=ft::media;
+    map[".mpg"]=ft::media;
+    map[".mpg4"]=ft::media;
+    map[".mxu"]=ft::media;
+    map[".qt"]=ft::media;
+    map[".viv"]=ft::media;
+    map[".wm"]=ft::media;
+    map[".wmv"]=ft::media;
+    map[".wmx"]=ft::media;
+    map[".wvx"]=ft::media;
+
+    // audio
+    map[".aif"]=ft::media;
+    map[".aifc"]=ft::media;
+    map[".aiff"]=ft::media;
+    map[".au"]=ft::media;
+    map[".ecelp4800"]=ft::media;
+    map[".ecelp7470"]=ft::media;
+    map[".ecelp9600"]=ft::media;
+    map[".eol"]=ft::media;
+    map[".kar"]=ft::media;
+    map[".lvp"]=ft::media;
+    map[".m2a"]=ft::media;
+    map[".m3a"]=ft::media;
+    map[".m3u"]=ft::media;
+    map[".mid"]=ft::media;
+    map[".midi"]=ft::media;
+    map[".mp2"]=ft::media;
+    map[".mp2a"]=ft::media;
+    map[".mp3"]=ft::media;
+    map[".mp4a"]=ft::media;
+    map[".mpga"]=ft::media;
+    map[".ra"]=ft::media;
+    map[".ram"]=ft::media;
+    map[".rmi"]=ft::media;
+    map[".rmp"]=ft::media;
+    map[".snd"]=ft::media;
+    map[".wav"]=ft::media;
+    map[".wax"]=ft::media;
+    map[".wma"]=ft::media;
+
+    // media
     map[".3gp2"]=ft::media;
     map[".3gpp"]=ft::media;
     map[".aac"]=ft::media;
     map[".ac3"]=ft::media;
     map[".amv"]=ft::media;
     map[".anx"]=ft::media;
-    map[".asf"]=ft::media;
-    map[".asx"]=ft::media;
-    map[".au"]=ft::media;
-    map[".avi"]=ft::media;
     map[".avs"]=ft::media;
     map[".axa"]=ft::media;
     map[".axv"]=ft::media;
@@ -150,33 +244,20 @@ struct ft{
     map[".f4v"]=ft::media;
     map[".flac"]=ft::media;
     map[".flc"]=ft::media;
-    map[".fli"]=ft::media;
     map[".flv"]=ft::media;
     map[".gl"]=ft::media;
-    map[".m1v"]=ft::media;
     map[".m2p"]=ft::media;
     map[".m2t"]=ft::media;
     map[".m2ts"]=ft::media;
-    map[".m2v"]=ft::media;
     map[".m4a"]=ft::media;
     map[".m4v"]=ft::media;
-    map[".mid"]=ft::media;
-    map[".midi"]=ft::media;
     map[".mka"]=ft::media;
     map[".mkv"]=ft::media;
     map[".mod"]=ft::media;
-    map[".mov"]=ft::media;
-    map[".mp2"]=ft::media;
-    map[".mp3"]=ft::media;
-    map[".mp4"]=ft::media;
-    map[".mp4v"]=ft::media;
     map[".mpc"]=ft::media;
-    map[".mpe"]=ft::media;
-    map[".mpeg"]=ft::media;
     map[".mpeg1"]=ft::media;
     map[".mpeg2"]=ft::media;
     map[".mpeg4"]=ft::media;
-    map[".mpg"]=ft::media;
     map[".mpv"]=ft::media;
     map[".mts"]=ft::media;
     map[".nsv"]=ft::media;
@@ -186,9 +267,6 @@ struct ft{
     map[".ogm"]=ft::media;
     map[".ogv"]=ft::media;
     map[".ogx"]=ft::media;
-    map[".qt"]=ft::media;
-    map[".ra"]=ft::media;
-    map[".ram"]=ft::media;
     map[".rm"]=ft::media;
     map[".rmvb"]=ft::media;
     map[".rv"]=ft::media;
@@ -200,9 +278,6 @@ struct ft{
     map[".ts"]=ft::media;
     map[".vob"]=ft::media;
     map[".vro"]=ft::media;
-    map[".wav"]=ft::media;
-    map[".wma"]=ft::media;
-    map[".wmv"]=ft::media;
     map[".xspf"]=ft::media;
     map[".yuv"]=ft::media;
 
