@@ -13,7 +13,7 @@ else
 fi
 
 #g++ -o $outdir/modls modls.cpp
-if supported_time_style; then
+if $supported_time_style; then
     filter=(sed -e "s/ls /ls --time-style='+%010s' /" -e "s|/modls|/modls -t|")
     cat l  | "${filter[@]}" > $bindir/l
     cat ll | "${filter[@]}" > $bindir/ll

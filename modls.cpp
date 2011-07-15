@@ -5,8 +5,8 @@
 #if 0
 #define ESC(x) "\33[" #x "m"
 
-int datenum(time_t t){
-  tm* dt=localtime(&t);
+int datenum(std::time_t t){
+  std::tm* dt=std::localtime(&t);
   return dt->tm_year*10000+dt->tm_mon*100+dt->tm_mday;
 }
 
@@ -55,10 +55,43 @@ class LineProc{
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "scanner.h"
 #include "colored_string.h"
 #include "filetype.h"
+#include "argumentreader.h"
+
+//******************************************************************************
+//    Argument Reader
 //------------------------------------------------------------------------------
+class Argument:public mwg::ArgumentReader{
+  typedef mwg::ArgumentReader base;
+public:
+  bool flag_time;
+  std::vector<const char*> lines;
+public:
+  Argument():base("modls"){
+    this->flag_time=false;
+  }
+  void print_usage(){
+    std::printf("usage: modls [options]\n");
+  }
+  void arg_normal(const char* arg){
+    lines.push_back(arg);
+    //report_argerr("unrecognized argument");
+  }
+  bool switch_cflag(int letter){
+    switch(letter){
+    case 't':
+      this->flag_time=true;
+      return true;
+    default:
+      return false;
+    }
+  }
+} args;
+
+//******************************************************************************
 //    read line
 //------------------------------------------------------------------------------
 struct read_data{
@@ -85,12 +118,30 @@ void read_line(read_data& data,const std::string line){
   }else{
     scanner.read(data.size,"sSs");
   }
-  scanner.read(data.time,"SsSs");
+  scanner.read(data.time,args.flag_time?"Ss":"SsSs");
+
+  /*
   scanner.read(data.file,"S");
   scanner.read(data.note,"*");
+  /*/
+  for(;;){
+    std::string s;scanner.read(s,"s");
+    std::string w;scanner.read(w,"S");
+    if(w.size()==0)break;
+    if(w!="->"){
+      data.file+=s;
+      data.file+=w;
+    }else{
+      data.note=s;
+      data.note+=w;
+      scanner.read(data.note,"*");
+      break;
+    }
+  }
+  //*/
 }
 
-//------------------------------------------------------------------------------
+//******************************************************************************
 //    colored data
 //------------------------------------------------------------------------------
 struct line_data{
@@ -129,12 +180,42 @@ public:
     std::putchar('\n');
   }
 };
-//------------------------------------------------------------------------------
+//******************************************************************************
 //    color
 //------------------------------------------------------------------------------
 
 ft::map_t extmap;
 
+//------------------------------------------------------------------------------
+void color_modifier(line_data& ldata){
+  if(ldata.mods[0]=='d'){
+    ldata.mods.set_fc(cc::blue,0);
+  }else if(ldata.mods[0]=='l'){
+    ldata.mods.set_fc(cc::cyan,0);
+  }
+
+  for(int i=1;i<=9;i++){
+    switch(ldata.mods[i]){
+    case 'r':ldata.mods.set_fc(cc::blue,i);break;
+    case 'w':ldata.mods.set_fc(cc::red,i);break;
+    case 'x':ldata.mods.set_fc(cc::green,i);break;
+    case '-':ldata.mods.set_fc(cc::gray,i);break;
+    case 't':
+      ldata.mods.set_fc(cc::white,i);
+      if(ldata.mods[i-1]=='w')
+        ldata.mods.set_bc(cc::darkG,i);
+      else
+        ldata.mods.set_bc(cc::darkB,i);
+      break;
+    default:
+      ldata.mods.set_fc(cc::white,i);
+      ldata.mods.set_bc(cc::black,i);
+      break;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void color_filename(line_data& ldata){
   // filetype and color
   switch(ldata.mods[0]){
@@ -189,7 +270,44 @@ void color_filename(line_data& ldata){
     return;
   }
 }
+//------------------------------------------------------------------------------
+void color_time(line_data& ldata){
+  if(args.flag_time){
+    std::time_t time=(std::time_t)std::atol(ldata.time.str.c_str());
 
+    // format time
+    std::tm* dt=std::localtime(&time);
+    char buff[128];
+    std::sprintf(buff,"%04d-%02d-%02d %02d:%02d:%02d ",
+      1900+dt->tm_year,1+dt->tm_mon,dt->tm_mday,
+      dt->tm_hour,dt->tm_min,dt->tm_sec
+      );
+    ldata.time=buff;
+
+    // color time
+    std::time_t now=std::time(NULL);
+    typedef unsigned int uint32t;
+    float delta=(uint32t)now-(uint32t)time;
+    if((delta/=60)<=1){
+      ldata.time.set_fc(cc::red);
+    }else if(delta<=5){
+      ldata.time.set_fc(cc::cyan);
+    }else if(delta<=15){
+      ldata.time.set_fc(cc::green);
+    }else if((delta/=60)<=1){
+      ldata.time.set_fc(cc::blue);
+    }else if(delta<=6){
+      ldata.time.set_fc(cc::darkC);
+    }else if((delta/=24)<=1){
+      ldata.time.set_fc(cc::darkB);
+    }else if(delta<=7){
+      ldata.time.set_fc(cc::darkM);
+    }else if(delta<=30){
+      ldata.time.set_fc(cc::darkY);
+    }
+  }
+}
+//******************************************************************************
 // -rwxr-xr-x  1 k-murase jlc   74 Nov 11 15:27 escape-regex
 void process_line(const std::string line){
   read_data rdata;
@@ -202,39 +320,21 @@ void process_line(const std::string line){
   }
 
   // color mods
-  if(ldata.mods[0]=='d'){
-    ldata.mods.set_fc(cc::blue,0);
-  }else if(ldata.mods[0]=='l'){
-    ldata.mods.set_fc(cc::cyan,0);
-  }
-  for(int i=1;i<=9;i++){
-    switch(ldata.mods[i]){
-    case 'r':ldata.mods.set_fc(cc::blue,i);break;
-    case 'w':ldata.mods.set_fc(cc::red,i);break;
-    case 'x':ldata.mods.set_fc(cc::green,i);break;
-    case '-':ldata.mods.set_fc(cc::gray,i);break;
-    case 't':
-      ldata.mods.set_fc(cc::white,i);
-      if(ldata.mods[i-1]=='w')
-        ldata.mods.set_bc(cc::darkG,i);
-      else
-        ldata.mods.set_bc(cc::darkB,i);
-      break;
-    default:
-      ldata.mods.set_fc(cc::white,i);
-      ldata.mods.set_bc(cc::black,i);
-      break;
-    }
-  }
-
+  color_modifier(ldata);
   color_filename(ldata);
+  color_time(ldata);
 
   ldata.print();
 }
 
 int main(int argc,char** argv){
-  if(argc>1){
-    process_line(argv[1]);
+  if(!args.read(argc,argv))return 1;
+
+  if(args.lines.size()>0){
+    typedef std::vector<const char*>::iterator it;
+    for(it i=args.lines.begin();i!=args.lines.end();i++){
+      process_line(*i);
+    }
     return 0;
   }
 
