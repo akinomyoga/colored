@@ -1,7 +1,9 @@
+// -*- mode:C++ -*-
 #ifndef COLORED_STRING_H
 #define COLORED_STRING_H
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 #include <string>
 
 typedef unsigned short word;
@@ -10,23 +12,23 @@ typedef unsigned char byte;
 struct cc{
   static const byte def    =0xff;
 
-  static const byte gray   =0x10;
-  static const byte red    =0x11;
-  static const byte green  =0x12;
-  static const byte blue   =0x14;
-  static const byte cyan   =0x16;
-  static const byte magenta=0x15;
-  static const byte yellow =0x13;
-  static const byte white  =0x17;
+  static const byte gray   =010;
+  static const byte red    =011;
+  static const byte green  =012;
+  static const byte blue   =014;
+  static const byte cyan   =016;
+  static const byte magenta=015;
+  static const byte yellow =013;
+  static const byte white  =017;
 
-  static const byte black  =0x00;
-  static const byte darkR  =0x01;
-  static const byte darkG  =0x02;
-  static const byte darkB  =0x04;
-  static const byte darkC  =0x06;
-  static const byte darkM  =0x05;
-  static const byte darkY  =0x03;
-  static const byte silver =0x07;
+  static const byte black  =000;
+  static const byte darkR  =001;
+  static const byte darkG  =002;
+  static const byte darkB  =004;
+  static const byte darkC  =006;
+  static const byte darkM  =005;
+  static const byte darkY  =003;
+  static const byte silver =007;
 
   static const word cc_default=def|def<<8;
   static short cc_overwrite(word c1,word c2){
@@ -35,40 +37,9 @@ struct cc{
     return (w_fc?c2:c1)&0x00FF|(w_bc?c2:c1)&0xFF00;
   }
 public:
-  static void set_color(word c){
-    cc::clear();
-    if(c==cc::cc_default)return;
-    byte fc=c&0xff;
-    byte bc=c>>8&0xff;
-    std::putchar('\33');
-    std::putchar('[');
-    if(fc!=cc::def)put_forecolor(fc);
-    if(fc!=cc::def&&bc!=cc::def)std::putchar(';');
-    if(bc!=cc::def)put_backcolor(bc);
-    std::putchar('m');
-  }
-  static void clear(){
-    std::putchar('\33');
-    std::putchar('[');
-    std::putchar('m');
-  }
-private:
-  static void put_forecolor(byte c){
-    if(c&0x10){
-      std::putchar('1');
-      std::putchar(';');
-    }
-    std::putchar('3');
-    std::putchar('0'+(c&0x7));
-  }
-  static void put_backcolor(byte c){
-    if(c&0x10){
-      std::putchar('5');
-      std::putchar(';');
-    }
-    std::putchar('4');
-    std::putchar('0'+(c&0x7));
-  }
+  static void set_color(word c);
+public:
+  static void clear();
 };
 
 class colored_string{

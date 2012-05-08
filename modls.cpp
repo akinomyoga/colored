@@ -288,7 +288,10 @@ void color_time(line_data& ldata){
     std::time_t now=std::time(NULL);
     typedef unsigned int uint32t;
     float delta=(uint32t)now-(uint32t)time;
-    if((delta/=60)<=1){
+    if(delta<0){
+      ldata.time.set_fc(cc::yellow);
+      ldata.time.set_bc(cc::cyan);
+    }else if((delta/=60)<=1){
       ldata.time.set_fc(cc::red);
     }else if(delta<=5){
       ldata.time.set_fc(cc::cyan);
@@ -339,6 +342,11 @@ int main(int argc,char** argv){
   }
 
   ft::init_map(extmap);
+
+#ifdef USE_TERMINFO  
+  void init_termcolor();
+  init_termcolor();
+#endif
 
   std::string line;
   while(std::getline(std::cin,line)){

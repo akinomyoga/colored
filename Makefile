@@ -1,20 +1,31 @@
 # Makefile
 
-BINDIR=~/.mwg
+BINDIR=$(HOME)/.mwg
 PWDNAME:=$(subst $(dir $(PWD)),,$(PWD))
 
-.PHONY: all dist install
-all: $(BINDIR) $(BINDIR)/modls
+CXXFLAGS:=-DUSE_TERMINFO
+
+all: $(BINDIR) $(BINDIR)/modls$(EXEEXT)
+.PHONY: all dist install clear
+
+clear:
+	-rm -f *.o
 
 $(BINDIR):
 	test -d $(BINDIR) || mkdir $(BINDIR)
 
-$(BINDIR)/modls: modls.cpp scanner.h colored_string.h
-	g++ -o$@ $<
+modls.o: modls.cpp scanner.h colored_string.h
+	g++ $(CXXFLAGS) -c -o$@ $<
+termcolor.o: termcolor.cpp colored_string.h
+	g++ $(CXXFLAGS) -c -o$@ $<
+$(BINDIR)/modls$(EXEEXT): modls.o termcolor.o
+	g++ -o$@ $^ -lncurses
 
-install: $(BINDIR)/modls
+install: $(BINDIR)/modls$(EXEEXT)
 	./install.sh
 
 dist:
-	cd .. && tar cavf mwg.modls.tar.lzma --exclude='*~' "$(PWDNAME)"
-	cd .. && tar cavf mwg.modls.tar.bz2 --exclude='*~' "$(PWDNAME)"
+	DATE=`date +%Y%m%d` && cd .. && { \
+  tar cavf modls.$$DATE.tar.xz --exclude='*~' --exclude='*.o' "$(PWDNAME)"; \
+  tar cavf modls.$$DATE.tar.gz --exclude='*~' --exclude='*.o' "$(PWDNAME)"; \
+}
