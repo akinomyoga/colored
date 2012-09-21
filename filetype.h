@@ -125,6 +125,7 @@ struct ft{
     map[".cpt"]=ft::archive;
     map[".deb"]=ft::archive;
     map[".dz"]=ft::archive;
+    map[".ear"]=ft::archive;
     map[".gca"]=ft::archive;
     map[".gz"]=ft::archive;
     map[".gza"]=ft::archive;
@@ -143,6 +144,7 @@ struct ft{
     map[".rar"]=ft::archive;
     map[".rpm"]=ft::archive;
     map[".rz"]=ft::archive;
+    map[".sar"]=ft::archive;
     map[".sea"]=ft::archive;
     map[".sit"]=ft::archive;
     map[".tar"]=ft::archive;
@@ -155,6 +157,7 @@ struct ft{
     map[".tz"]=ft::archive;
     map[".uu"]=ft::archive;
     map[".uue"]=ft::archive;
+    map[".war"]=ft::archive;
     map[".xxe"]=ft::archive;
     map[".xz"]=ft::archive;
     map[".yz1"]=ft::archive;
@@ -193,6 +196,7 @@ struct ft{
     map[".mxu"]=ft::media;
     map[".qt"]=ft::media;
     map[".viv"]=ft::media;
+    map[".webm"]=ft::media;
     map[".wm"]=ft::media;
     map[".wmv"]=ft::media;
     map[".wmx"]=ft::media;

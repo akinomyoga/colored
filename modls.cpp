@@ -175,6 +175,7 @@ public:
     std::printf("%s",group.c_str());
     std::printf("%s",size.c_str());
     time.print();
+    std::putchar(' ');
     file.print();
     std::printf("%s",note.c_str());
     std::putchar('\n');
@@ -278,7 +279,7 @@ void color_time(line_data& ldata){
     // format time
     std::tm* dt=std::localtime(&time);
     char buff[128];
-    std::sprintf(buff,"%04d-%02d-%02d %02d:%02d:%02d ",
+    std::sprintf(buff,"%04d-%02d-%02d %02d:%02d:%02d",
       1900+dt->tm_year,1+dt->tm_mon,dt->tm_mday,
       dt->tm_hour,dt->tm_min,dt->tm_sec
       );
@@ -286,11 +287,10 @@ void color_time(line_data& ldata){
 
     // color time
     std::time_t now=std::time(NULL);
-    typedef unsigned int uint32t;
-    float delta=(uint32t)now-(uint32t)time;
+    float delta=(float)now-(float)time;
     if(delta<0){
       ldata.time.set_fc(cc::yellow);
-      ldata.time.set_bc(cc::cyan);
+      ldata.time.set_bc(cc::black);
     }else if((delta/=60)<=1){
       ldata.time.set_fc(cc::red);
     }else if(delta<=5){
