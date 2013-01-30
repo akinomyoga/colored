@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-    ls -lB | ~/.mwg/modls
+    %LS% -lB | %MODLS%
 else
-    ls -lB "$@" | ~/.mwg/modls
+    %LS% -lB "$@" | %MODLS%
 fi
