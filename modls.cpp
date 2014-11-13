@@ -61,6 +61,13 @@ class LineProc{
 #include "filetype.h"
 #include "argumentreader.h"
 
+#if defined(__unix)||defined(__unix__)
+# define mwg_modls_unistd_available
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
+#endif
+
 //******************************************************************************
 //    Argument Reader
 //------------------------------------------------------------------------------
@@ -104,6 +111,7 @@ struct read_data{
   std::string time;
   std::string file;
   std::string note;
+  std::string link;
 };
 
 void read_line(read_data& data,const std::string line){
@@ -132,9 +140,14 @@ void read_line(read_data& data,const std::string line){
       data.file+=s;
       data.file+=w;
     }else{
+      // data.note=" -> "
       data.note=s;
       data.note+=w;
-      scanner.read(data.note,"*");
+      scanner.read(s,"s");
+      data.note+=s;
+
+      // data.link
+      scanner.read(data.link,"*");
       break;
     }
   }
@@ -154,6 +167,7 @@ struct line_data{
   colored_string time;
   colored_string file;
   std::string note;
+  colored_string link;
 public:
   line_data(const read_data& data)
     :mods(data.mods)
@@ -165,6 +179,7 @@ public:
     ,time(data.time)
     ,file(data.file)
     ,note(data.note)
+    ,link(data.link)
   {}
 public:
   void print(){
@@ -178,6 +193,7 @@ public:
     std::putchar(' ');
     file.print();
     std::printf("%s",note.c_str());
+    link.print();
     std::putchar('\n');
   }
 };
@@ -310,6 +326,72 @@ void color_time(line_data& ldata){
     }
   }
 }
+//------------------------------------------------------------------------------
+void color_link(line_data& ldata){
+  if(ldata.mods[0]!='l')return;
+
+#ifdef mwg_modls_unistd_available
+  //■ディレクトリのメンバに対しては ldata.file の部分に表示されるのは単なるファイル名。
+  char buff[1000];
+  ssize_t len=readlink(ldata.file.c_str(),buff,sizeof(buff)-1);
+  if(0<=len&&len<sizeof(buff)){
+    buff[len]='\0';
+    struct stat st;
+    if(::stat(buff,&st)==0){
+      if(S_ISDIR(st.st_mode)){ // d
+        ldata.link.set_fc(cc::blue);
+        return;
+      }else if(S_ISLNK(st.st_mode)){ // h
+        ldata.link.set_fc(cc::cyan);
+        return;
+      }else if(S_ISFIFO(st.st_mode)){ // p
+        ldata.link.set_bc(cc::black);
+        ldata.link.set_fc(cc::cyan);
+        return;
+      }else if(S_ISCHR(st.st_mode)||S_ISBLK(st.st_mode)){ // b c
+        ldata.link.set_bc(cc::black);
+        ldata.link.set_fc(cc::yellow);
+        return;
+      }else if(S_ISSOCK(st.st_mode)){ // s
+        ldata.link.set_bc(cc::black);
+        ldata.link.set_fc(cc::green);
+        return;
+      }else if(S_ISVTX&st.st_mode){ // t
+        ldata.link.set_fc(cc::white);
+        if(S_IWOTH&st.st_mode) // o+w 他人書込可能
+          ldata.link.set_bc(cc::darkG);
+        else
+          ldata.link.set_bc(cc::darkB);
+        return;
+      }else if((S_IXUSR|S_IXGRP|S_IXOTH)&st.st_mode){ // x
+        ldata.link.set_fc(cc::green);
+        return;
+      }
+    }else{
+      // error
+      ldata.link.set_fc(cc::white);
+      ldata.time.set_bc(cc::red);
+      return;
+    }
+  }
+#endif
+
+      // extension
+  ft::map_t::iterator i=extmap.find(get_extension(ldata.link.str));
+  if(i!=extmap.end()){
+    switch(i->second){
+    case ft::image:
+      ldata.link.set_fc(cc::magenta);
+      return;
+    case ft::archive:
+      ldata.link.set_fc(cc::red);
+      return;
+    case ft::media:
+      ldata.link.set_fc(cc::darkC);
+      return;
+    }
+  }
+}
 //******************************************************************************
 // -rwxr-xr-x  1 k-murase jlc   74 Nov 11 15:27 escape-regex
 void process_line(const std::string line){
@@ -326,6 +408,7 @@ void process_line(const std::string line){
   color_modifier(ldata);
   color_filename(ldata);
   color_time(ldata);
+  color_link(ldata);
 
   ldata.print();
 }

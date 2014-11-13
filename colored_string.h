@@ -72,6 +72,7 @@ public:
     return str[index];
   }
   int size() const{return str.size();}
+  const char* c_str() const{return str.c_str();}
   colored_string& operator=(const char* str){
     int oldsize=this->str.size();
     word* oldcolors=this->colors;
@@ -103,6 +104,8 @@ public:
   word get(int index) const{return colors[index];}
 public:
   void print(){
+    if(str.size()==0)return;
+
     word c;
     cc::set_color(c=this->color);
     for(int i=0,iM=str.size();i<iM;i++){

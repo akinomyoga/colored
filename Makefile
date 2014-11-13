@@ -5,9 +5,9 @@ SHARE=$(HOME)/.mwg/share/modls
 CXXFLAGS:=-DUSE_TERMINFO
 
 all: modls$(EXEEXT)
-.PHONY: all dist install clear
+.PHONY: all dist install clean
 
-clear:
+clean:
 	-rm -f *.o
 
 modls.o: modls.cpp scanner.h colored_string.h
