@@ -143,6 +143,7 @@ void read_line(read_data& data,const std::string line){
       // data.note=" -> "
       data.note=s;
       data.note+=w;
+      s.clear();
       scanner.read(s,"s");
       data.note+=s;
 
@@ -370,7 +371,7 @@ void color_link(line_data& ldata){
     }else{
       // error
       ldata.link.set_fc(cc::white);
-      ldata.time.set_bc(cc::red);
+      ldata.link.set_bc(cc::red);
       return;
     }
   }
