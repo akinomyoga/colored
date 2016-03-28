@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 #include <cstdio>
 #ifdef USE_TERMINFO
 # include <ncurses/term.h>

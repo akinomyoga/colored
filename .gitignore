@@ -1,0 +1,8 @@
+# backup
+/backup
+*~
+
+# generated files
+*.o
+*.exe
+/dist

@@ -1,3 +1,4 @@
+// -*- mode:c++; coding: utf-8 -*-
 #ifndef MWG_ARGUMENTREADER
 #define MWG_ARGUMENTREADER
 #include <cstdio>
@@ -42,7 +43,7 @@ protected:
   virtual void switch_cfunc(int c,const char* arg){}
   virtual int resolve_longname(const char* arg){return 0;}
 private:
-  // [return: w’è‚³‚ê‚½ˆø”‚Ì“Ç‚İæ‚è‚ªI—¹‚µ‚½‚©‚Ç‚¤‚©]
+  // [return: æŒ‡å®šã•ã‚ŒãŸå¼•æ•°ã®èª­ã¿å–ã‚ŠãŒçµ‚äº†ã—ãŸã‹ã©ã†ã‹]
   bool read_option(char*& arg){
     int c=*arg++;
     if(c=='\0'){
@@ -51,7 +52,7 @@ private:
     }
 
     if(c=='-'&&*arg!='\0'){
-      // --longname=param •ª—£
+      // --longname=param åˆ†é›¢
       char* p1=std::strchr(arg,'=');
       char* p2=std::strchr(arg,':');
       if(p1==NULL||p2!=NULL&&p2<p1)p1=p2;

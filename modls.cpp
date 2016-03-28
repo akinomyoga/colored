@@ -377,7 +377,7 @@ void color_link(line_data& ldata){
   }
 #endif
 
-      // extension
+  // extension
   ft::map_t::iterator i=extmap.find(get_extension(ldata.link.str));
   if(i!=extmap.end()){
     switch(i->second){
@@ -427,7 +427,7 @@ int main(int argc,char** argv){
 
   ft::init_map(extmap);
 
-#ifdef USE_TERMINFO  
+#ifdef USE_TERMINFO
   void init_termcolor();
   init_termcolor();
 #endif
