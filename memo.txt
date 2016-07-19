@@ -1,0 +1,12 @@
+# memo for modls
+
+2016-07-20
+
+* ls++
+
+  類似のものを見つけた。Perl で書かれている。
+  https://github.com/trapd00r/ls--
+
+  環境変数 LS_COLORS で詳細な指定を受け付けるようにもなっている。
+  (と思う。というのもこの作者は LS_COLORS も提供している:
+  https://github.com/trapd00r/LS_COLORS)
