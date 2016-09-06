@@ -6,88 +6,72 @@
 #include <cwchar>
 
 // from lwiki/lib/lib.ldiff.php
-template<typename T>
+template<typename F, bool swapped = false>
 static void _ldiff_getpath_wu(
   std::vector<std::pair<int, int> >& _path,
-  T const& _arr1,
-  T const& _arr2
+  F const& equals, int M, int N
 ){
-  T const* parr1 = &_arr1;
-  T const* parr2 = &_arr2;
-  int M = parr1->size();
-  int N = parr2->size();
-
-  bool const swapped = M < N;
-  if(swapped){
-    using namespace std;
-    swap(parr1, parr2);
-    swap(M, N);
+  if (!swapped && M < N) {
+    _ldiff_getpath_wu<F, true>(_path, equals, N, M);
+    return;
   }
 
-  T const& arr1 = *parr1;
-  T const& arr2 = *parr2;
+  /* Wu のアルゴリズム
+   *
+   * p = yskip の回数。
+   *   できるだけ p の小さな経路を探せば良い。
+   *   p についてループして初めに到達した経路を解とすれば良い。
+   *
+   * k = 対角線番号 (0 <= k <= M + N)
+   *
+   *     +-- M ---------------+
+   *   + +----------------+---+
+   *   | |\               :\  |\
+   *   N | \              : \ | \
+   *   | |  \             :  \|  \
+   *   + +---+----------------+   +
+   *     :   :            :   :   :
+   *    k=0 k=N        k=M-N k=M k=M+N
+   *
+   *   或る p の時に各対角線上で最も進める位置(x, y)を考える。
+   *
+   * 各対角線上で
+   *   q = k - N + p = xskipの回数,
+   *   s[q].path = 一致開始点の集合,
+   *   s[q].m = 合計一致長,
+   *   x = s[q].m + q,
+   *   y = s[q].m + p.
+   *
+   */
 
-  // Wu のアルゴリズム
-
-  // $p: $arr2 のskip回数 (これの数でループを回す)
-  // $k: 対角線番号
-  // $x = $y+$k-N        ($arr1 内の index, 0<=$x<M)
-  // $y = $y              ($arr2 内の index, 0<=$y<N)
-  //
-  // assert(0<=$k&&$k<=N+M);
-  // assert($y>=$p);
-
-  struct hoge {
-    int y;
+  struct diagonal {
+    int m {0};
     std::vector<std::pair<int, int> > path;
   };
-  std::vector<hoge> s(M + N + 1); // ToDo check preferred size
-
-  // s[k].y
-  //   k ... 対角線番号 0 <= k < M+N
-  //   各対角線について skip 回数 $p 回で何処の $y まで到達できるか?
+  std::vector<diagonal> s(M + 1);
 
   for (int p = 0; p <= N; p++) {
-    for (int k = N - p; k <= M + p + 1; k++) {
-      int y = 0;
-      std::vector<std::pair<int, int> > path;
+    for (int q = 0, qM = std::min(M, M - N + 2 * p); q <= qM; q++) {
+      // 左から来た方が速い場合
+      if (q > 0 && s[q].m < s[q-1].m) s[q] = s[q-1];
 
-      if (p > 0 && k < M + p) {
-        // 上からの寄与
-        y = s[k+1].y + 1;
-        path = std::move(s[k+1].path); // 後で上書きされるので流用可
-      }
+      // 共通部分の読み取り
+      int const x0 = s[q].m + q;
+      int const y0 = s[q].m + p;
+      int x = x0, y = y0;
+      for (; x < M && y < N && (swapped? equals(y, x): equals(x, y)); x++, y++);
 
-      if (k > N - p && y < s[k-1].y) {
-        // 左からの寄与
-        y = s[k-1].y;
-        path = s[k-1].path; // 後で使われるのでクローン
-      }
+      std::vector<std::pair<int, int> >& path = s[q].path;
+      if (y != y0)
+        path.push_back(swapped? std::make_pair(y0, x0): std::make_pair(x0, y0));
 
-      // ※上・左どちらの寄与もないのは原点 (x,y)=(0,0) にいる時のみ。
-      //   この時は y == 0 && path.empty() で良い。
-
-      // 進めるだけ進む (進めたら開始点を記録)
-      {
-        int isfirst = true;
-        int x = y + k - N;
-        while (y < N && x < M && arr1[x]==arr2[y]) {
-          if (isfirst) {
-            isfirst = false;
-            path.push_back(swapped? std::make_pair(y, x): std::make_pair(x, y));
-          }
-          y++;
-          x++;
-        }
-      }
-
+      // 到達確認
       if (y == N) {
         _path = std::move(path);
         return;
       }
 
-      s[k].y = y;
-      s[k].path = std::move(path);
+      s[q].m = y - p;
     }
   }
 }
@@ -106,7 +90,7 @@ const wchar_t* termcap_begin_rline = L"\x1b[;48;5;225m";
 const wchar_t* termcap_begin_aline = L"\x1b[;48;5;193m";
 
 const wchar_t* termcap_begin_rword = L"\x1b[;1;48;5;217m";
-const wchar_t* termcap_begin_aword = L"\x1b[;1;48;5;118m";
+const wchar_t* termcap_begin_aword = L"\x1b[;1;48;5;112m";
 
 struct diff_processor {
 
@@ -185,7 +169,7 @@ struct diff_processor {
 
   void output_detailed_diff(std::wstring const& removed, std::wstring const& added) {
     std::vector<std::pair<int,int> > path;
-    _ldiff_getpath_wu(path, removed, added);
+    _ldiff_getpath_wu(path, [&removed, &added](int i, int j){return removed[i] ==  added[j];}, removed.size(), added.size());
     std::size_t index;
 
     // removed
