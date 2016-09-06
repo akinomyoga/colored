@@ -92,17 +92,177 @@ static void _ldiff_getpath_wu(
   }
 }
 
-void puttext(const wchar_t* text) {
-  while (*text) std::putwchar(*text++);
-}
-void putuntil(std::wstring const& text, int& index, int until, const wchar_t* prefix = nullptr, const wchar_t* suffix = nullptr) {
-  if (index < until) {
-    if (prefix) puttext(prefix);
-    while (index < until)
-      std::putwchar(text[index++]);
-    if (suffix) puttext(suffix);
+const wchar_t* termcap_begin_cntrl = L"\x1b[1m";
+const wchar_t* termcap_end_cntrl = L"\x1b[22m";
+
+const wchar_t* termcap_begin_rline = L"\x1b[48;5;225m";
+const wchar_t* termcap_end_rline = L"\x1b[49m";
+const wchar_t* termcap_begin_aline = L"\x1b[48;5;193m";
+const wchar_t* termcap_end_aline = L"\x1b[49m";
+
+const wchar_t* termcap_begin_rword = L"\x1b[1;48;5;217m";
+const wchar_t* termcap_end_rword = L"\x1b[22;48;5;225m";
+const wchar_t* termcap_begin_aword = L"\x1b[1;48;5;118m";
+const wchar_t* termcap_end_aword = L"\x1b[22;48;5;193m";
+
+struct diff_processor {
+
+  void putchar_escaped(wchar_t ch) {
+    if (std::iswcntrl(ch)) {
+      std::wcout << termcap_begin_cntrl;
+      if (0 <= ch && ch < 32) {
+        std::wcout.put(L'^');
+        std::wcout.put(wchar_t(L'A' - 1 + ch));
+      } else if (128 <= ch && ch < 160) {
+        std::wcout.put(L'_');
+        std::wcout.put(wchar_t(L'A' - 1 + ch));
+      } else {
+        std::wcout.put(ch);
+      }
+      std::wcout << termcap_end_cntrl;
+    } else {
+      std::wcout.put(ch);
+    }
   }
-}
+
+  bool isBeginningOfLine;
+  wchar_t section_chead;
+  const wchar_t* section_prefix;
+  const wchar_t* section_suffix;
+
+  void section_setup(wchar_t chead, const wchar_t* prefix, const wchar_t* suffix) {
+    isBeginningOfLine = true;
+    section_chead = chead;
+    section_prefix = prefix;
+    section_suffix = suffix;
+  }
+  void section_putchar(wchar_t ch) {
+    if (ch == L'\n') {
+      if (isBeginningOfLine)
+        std::wcout.put(section_chead);
+      else if (section_suffix)
+        std::wcout << section_suffix;
+
+      std::wcout.put(ch);
+      isBeginningOfLine = true;
+    } else {
+      if (isBeginningOfLine) {
+        isBeginningOfLine = false;
+        std::wcout.put(section_chead);
+        if (section_prefix) std::wcout << section_prefix;
+      }
+      putchar_escaped(ch);
+    }
+  }
+
+  void section_reset(){
+    if (!isBeginningOfLine) {
+      std::wcout.put(L'\n');
+      if (section_suffix) std::wcout << section_suffix;
+    }
+
+    isBeginningOfLine = true;
+    section_chead = ' ';
+    section_prefix = nullptr;
+    section_suffix = nullptr;
+  }
+
+  void putword(std::wstring const& text, int& index, int until, const wchar_t* prefix = nullptr, const wchar_t* suffix = nullptr) {
+    if (index < until) {
+      using std::swap;
+      if (prefix) std::wcout << prefix;
+      swap(section_prefix, prefix);
+      swap(section_suffix, suffix);
+
+      while (index < until) {
+        wchar_t const ch = text[index++];
+        section_putchar(ch);
+      }
+
+      swap(section_prefix, prefix);
+      swap(section_suffix, suffix);
+      if (suffix) std::wcout << suffix;
+    }
+  }
+
+  void output_detailed_diff(std::wstring const& removed, std::wstring const& added) {
+    std::vector<std::pair<int,int> > path;
+    _ldiff_getpath_wu(path, removed, added);
+    int index = 0;
+
+    // removed
+    index = 0;
+    section_setup(L'-', termcap_begin_rline, termcap_end_rline);
+    for (auto const& spec: path) {
+      putword(removed, index, spec.first, termcap_begin_rword, termcap_end_rword);
+
+      while (index < removed.size() && removed[index] == added[spec.second - spec.first + index]) {
+        section_putchar(removed[index++]);
+      }
+    }
+    putword(removed, index, removed.size(), termcap_begin_rword, termcap_end_rword);
+    section_reset();
+
+    // add
+    section_setup(L'+', termcap_begin_aline, termcap_end_aline);
+    index = 0;
+    for (auto const& spec: path) {
+      putword(added, index, spec.second, termcap_begin_aword, termcap_end_aword);
+      while (index < added.size() && added[index] == removed[spec.first - spec.second + index]) {
+        section_putchar(added[index++]);
+      }
+    }
+    putword(added, index, added.size(), termcap_begin_aword, termcap_end_aword);
+    section_reset();
+  }
+
+  std::wstring removed;
+  std::wstring added;
+
+  void output_buffered_lines() {
+    if (!removed.empty()) {
+      if (!added.empty()) {
+        output_detailed_diff(removed, added);
+        added.clear();
+      } else {
+        section_setup(L'-', termcap_begin_rline, termcap_end_rline);
+        for (wchar_t ch: removed) section_putchar(ch);
+        section_reset();
+      }
+
+      removed.clear();
+    }
+  }
+
+  void process() {
+    std::wstring line;
+    while (std::getline(std::wcin, line)) {
+
+      if (line[0] == '-') {
+        if (!added.empty()) output_buffered_lines();
+
+        removed.append(line, 1, line.size() - 1);
+        removed.push_back(L'\n');
+      } else if (line[0] == '+') {
+        if (!removed.empty()) {
+          added.append(line, 1, line.size() - 1);
+          added.push_back(L'\n');
+        } else {
+          std::wcout << termcap_begin_aline;
+          for (wchar_t ch: line) putchar_escaped(ch);
+          std::wcout << termcap_end_aline;
+          std::wcout.put(L'\n');
+        }
+      } else {
+        if (!removed.empty()) output_buffered_lines();
+
+        for (wchar_t ch: line) putchar_escaped(ch);
+        std::wcout.put(L'\n');
+      }
+    }
+  }
+
+};
 
 int main() {
   std::setlocale(LC_CTYPE, "");
@@ -111,41 +271,8 @@ int main() {
   std::wcout.imbue(std::locale());
   std::wcin.imbue(std::locale());
 
-  std::wstring line;
-  std::wstring prev;
-  while (std::getline(std::wcin, line)) {
-    //std::wcout << line << "\n";
-    std::vector<std::pair<int,int> > path;
-    _ldiff_getpath_wu(path, prev, line);
-    int index = 0;
-
-    // removed
-    index = 0;
-    std::putwchar(L'-');
-    for (auto const& spec: path) {
-      putuntil(prev, index, spec.first, L"\x1b[1;48;5;217m", L"\x1b[m");
-
-      while (index < prev.size() && prev[index] == line[spec.second - spec.first + index]) {
-        std::putwchar(prev[index++]);
-      }
-    }
-    putuntil(prev, index, prev.size(), L"\x1b[1;48;5;217m", L"\x1b[m");
-    std::putwchar(L'\n');
-
-    // add
-    std::putwchar(L'+');
-    index = 0;
-    for (auto const& spec: path) {
-      putuntil(line, index, spec.second, L"\x1b[1;48;5;155m", L"\x1b[m");
-      while (index < line.size() && line[index] == prev[spec.first - spec.second + index]) {
-        std::putwchar(line[index++]);
-      }
-    }
-    putuntil(line, index, line.size(), L"\x1b[1;48;5;155m", L"\x1b[m");
-    std::putwchar(L'\n');
-
-    prev = line;
-  }
+  diff_processor proc;
+  proc.process();
 
   std::wcout << std::flush;
 }
