@@ -48,10 +48,13 @@ static void _ldiff_getpath_wu(
     int m {0};
     std::vector<std::pair<int, int> > path;
   };
-  std::vector<diagonal> s(M + 1);
+  std::vector<diagonal> s;
+  s.reserve(M + 1);
 
   for (int p = 0; p <= N; p++) {
-    for (int q = 0, qM = std::min(M, M - N + 2 * p); q <= qM; q++) {
+    int const qN = std::min(M, M - N + 2 * p);
+    s.resize(qN);
+    for (int q = 0; q < qN; q++) {
       // 左から来た方が速い場合
       if (q > 0 && s[q].m < s[q-1].m) s[q] = s[q-1];
 
