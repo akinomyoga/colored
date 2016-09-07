@@ -1,0 +1,8 @@
+#!/bin/bash
+
+colored_share_directory=$HOME/.mwg/share/colored
+
+case "$1" in
+(diff) "$@" | "$colored_share_directory/diff" ;;
+(-tdiff) exec "$colored_share_directory/diff" ;;
+esac
