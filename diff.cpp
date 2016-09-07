@@ -112,9 +112,9 @@ struct diff_processor {
     }
   }
 
-  bool isBeginningOfLine;
-  wchar_t section_chead;
-  const wchar_t* section_prefix;
+  bool isBeginningOfLine {true};
+  wchar_t section_chead {' '};
+  const wchar_t* section_prefix {nullptr};
 
   void section_setup(wchar_t chead, const wchar_t* prefix) {
     isBeginningOfLine = true;
