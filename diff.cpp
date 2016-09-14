@@ -87,13 +87,14 @@ const wchar_t* termcap_hank_comment = L"\x1b[;1;48;5;189m";
 const wchar_t* termcap_begin_cntrl = L"\x1b[7m";
 const wchar_t* termcap_end_cntrl = L"\x1b[27m";
 
-const wchar_t* termcap_head = L"\x1b[;38;5;25;48;5;254m";
+const wchar_t* termcap_head = L"\x1b[;38;5;25;48;5;189m";
 
-const wchar_t* termcap_begin_rline = L"\x1b[;48;5;225m";
-const wchar_t* termcap_begin_aline = L"\x1b[;48;5;193m";
-
-const wchar_t* termcap_begin_rword = L"\x1b[;1;48;5;217m";
-const wchar_t* termcap_begin_aword = L"\x1b[;1;48;5;112m";
+const wchar_t* termcap_begin_rline = L"\x1b[;48;5;218m";
+const wchar_t* termcap_begin_aline = L"\x1b[;48;5;154m";
+const wchar_t* termcap_begin_rback = L"\x1b[;48;5;225m";
+const wchar_t* termcap_begin_aback = L"\x1b[;48;5;193m";
+const wchar_t* termcap_begin_rword = L"\x1b[;48;5;218m";//217,225
+const wchar_t* termcap_begin_aword = L"\x1b[;48;5;154m";//112,193
 
 struct diff_processor {
 
@@ -177,7 +178,7 @@ struct diff_processor {
 
     // removed
     index = 0;
-    section_setup(L'-', termcap_begin_rline);
+    section_setup(L'-', termcap_begin_rback);
     for (auto const& spec: path) {
       putword(removed, index, spec.first, termcap_begin_rword);
 
@@ -189,7 +190,7 @@ struct diff_processor {
     section_reset();
 
     // add
-    section_setup(L'+', termcap_begin_aline);
+    section_setup(L'+', termcap_begin_aback);
     index = 0;
     for (auto const& spec: path) {
       putword(added, index, spec.second, termcap_begin_aword);
