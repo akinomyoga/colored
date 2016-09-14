@@ -221,6 +221,7 @@ struct diff_processor {
 
   void output_content_line(std::wstring const& line, const wchar_t* sgr = nullptr) {
     bool ishead = true;
+    if (sgr) section_prefix = sgr;
     for (wchar_t ch: line) {
       if (ishead) {
         std::wcout << termcap_head;
@@ -231,7 +232,10 @@ struct diff_processor {
         putchar_escaped(ch);
     }
 
-    if (sgr) std::wcout << termcap_sgr0;
+    if (sgr) {
+      section_prefix = termcap_sgr0;
+      std::wcout << termcap_sgr0;
+    }
     std::wcout.put(L'\n');
   }
 
