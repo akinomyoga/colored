@@ -2,7 +2,31 @@
 
 colored_share_directory=$HOME/.mwg/share/colored
 
+function print-help {
+  cat <<EOF
+usage: colored COMMAND ARGS...
+usage: COMMAND | colored -tTYPE
+
+In the first form, colored command serves as a colored version of COMMAND.
+In the second form, colored command serves as a filter for TYPE-formatted stream.
+
+COMMAND/TYPE
+
+  currently only "diff" is supported.
+
+  diff
+
+EOF
+}
+if (($#==0)); then
+  print-help >&2
+  exit 1
+fi
+
 case "$1" in
 (diff) "$@" | "$colored_share_directory/diff" ;;
 (-tdiff) exec "$colored_share_directory/diff" ;;
+(--help) print-help ;;
+(*) echo "unrecognized argument $1" >&2
+    exit 1 ;;
 esac
