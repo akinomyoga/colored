@@ -322,6 +322,8 @@ struct diff_processor {
         break;
       }
     }
+
+    if (!removed.empty()) flush_buffered_lines();
   }
 
 };
