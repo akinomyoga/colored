@@ -52,7 +52,7 @@ static void _ldiff_getpath_wu(
   s.reserve(M + 1);
 
   for (int p = 0; p <= N; p++) {
-    int const qN = std::min(M, M - N + 2 * p);
+    int const qN = std::min(M, M - N + 2 * p + 1);
     s.resize(qN);
     for (int q = 0; q < qN; q++) {
       // 左から来た方が速い場合
