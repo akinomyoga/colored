@@ -1,9 +1,12 @@
+#include <clocale>
+#include <cwchar>
+#include <cwctype>
 #include <iostream>
 #include <string>
 #include <locale>
 #include <vector>
 #include <utility>
-#include <cwchar>
+#include <algorithm>
 
 // from lwiki/lib/lib.ldiff.php
 template<typename F, bool swapped = false>
@@ -339,4 +342,5 @@ int main() {
   proc.process();
 
   std::wcout << std::flush;
+  return 0;
 }
