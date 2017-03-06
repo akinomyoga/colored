@@ -5,8 +5,8 @@ all:
 
 # compile
 
-CXX := cxx
-CXXFLAGS := -O2 -Wall
+CXX := g++
+CXXFLAGS := -O2 -Wall -std=c++11
 
 LDFLAGS:=
 LIBS:=
