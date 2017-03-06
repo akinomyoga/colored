@@ -47,6 +47,18 @@
   Done
 ------------------------------------------------------------------------------
 
+2017-03-07
+
+* diff: Cygwin で std::runtime_error が出る。
+
+  g++ でも clang++ でも同様にエラーになる。
+  原因は cygwin 上の libstdc++ が std::locale("") 対応していない事だった。
+  これは規格 22.3.1.2/6 に反している気がする。
+  Gist にした: https://gist.github.com/akinomyoga/18185db4ac1dcf9b6dfd518571ab25a6
+
+  取り敢えず std::wcout std::wcin に imbue しないでも動いているので
+  Cygwin では std::locale("") を実行しない様にして様子を見る。
+
 2016-09-16
 
 * diff: bug 一文字余分に消して追加するという結果になっている。[2016-09-15]

@@ -334,9 +334,11 @@ struct diff_processor {
 int main() {
   std::setlocale(LC_CTYPE, "");
   std::ios_base::sync_with_stdio(false);
+#ifndef __CYGWIN__
   std::locale::global(std::locale(std::locale::classic(), std::locale(""), std::locale::ctype));
   std::wcout.imbue(std::locale());
   std::wcin.imbue(std::locale());
+#endif
 
   diff_processor proc;
   proc.process();
