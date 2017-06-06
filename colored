@@ -102,7 +102,8 @@ function do-coloring {
   elif ((${#opt_command[@]})); then
     case ${opt_command[0]} in
     (diff)
-      "${opt_command[@]}" | "$colored_share_directory/diff" ;;
+      "${opt_command[@]}" | "$colored_share_directory/diff"
+      return "${PIPESTATUS[0]}" ;;
     (*)
       echo "colored: unrecognized target command '$arg'" >&2
       exit 1 ;;
@@ -113,6 +114,7 @@ function do-coloring {
 
 if [[ -t 1 && $opt_pager ]]; then
   do-coloring | eval "$opt_pager"
+  exit "${PIPESTATUS[0]}"
 else
   do-coloring
 fi
