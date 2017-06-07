@@ -28,7 +28,7 @@ OPTIONS
   --no-pager
 
     Select a pager which will be used if stdout is connected to a terminal.
-    If \`-p' or \`--pager' is specified, the default pager `\${PAGER:-less}' is used.
+    If \`-p' or \`--pager' is specified, the default pager \`\${PAGER:-less}' is used.
     With the form \`--pager=PAGER', a pager can be explicity specified.
     If \`-F' or \`--pager-with-long-content' is specified \`less -FSrX' will be used for the pager.
     If \'--no-pager' is specified, pagers is not used. This is the default.
