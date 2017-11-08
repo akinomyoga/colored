@@ -20,6 +20,7 @@ COMMAND/TYPE
 OPTIONS
 
   --help
+
     Show this help and exit.
 
   -p, --pager
@@ -37,9 +38,9 @@ OPTIONS
 
     If this option is specified, the trailing arguments are treated as a command
 
-
   -tTYPE
   -t TYPE
+
     Specify a color type.
 
 EOF
