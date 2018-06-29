@@ -11,7 +11,7 @@
 #include "filetype.h"
 #include "argumentreader.h"
 
-#if defined(__unix)||defined(__unix__)
+#if defined(__unix) || defined(__unix__)
 # define mwg_modls_unistd_available
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -21,26 +21,26 @@
 //******************************************************************************
 //    Argument Reader
 //------------------------------------------------------------------------------
-class Argument:public mwg::ArgumentReader{
+class Argument: public mwg::ArgumentReader {
   typedef mwg::ArgumentReader base;
 public:
   bool flag_time;
   std::vector<const char*> lines;
 public:
-  Argument():base("modls"){
-    this->flag_time=false;
+  Argument(): base("modls") {
+    this->flag_time = false;
   }
-  void print_usage(){
+  void print_usage() {
     std::printf("usage: modls [options]\n");
   }
-  void arg_normal(const char* arg){
+  void arg_normal(const char* arg) {
     lines.push_back(arg);
     //report_argerr("unrecognized argument");
   }
-  bool switch_cflag(int letter){
-    switch(letter){
+  bool switch_cflag(int letter) {
+    switch (letter) {
     case 't':
-      this->flag_time=true;
+      this->flag_time = true;
       return true;
     default:
       return false;
@@ -51,7 +51,7 @@ public:
 //******************************************************************************
 //    read line
 //------------------------------------------------------------------------------
-struct read_data{
+struct read_data {
   std::string mods;
   std::string nlinks;
   std::string user;
@@ -64,41 +64,41 @@ struct read_data{
   std::string link;
 };
 
-void read_line(read_data& data,const std::string line){
+void read_line(read_data& data, const std::string& line) {
   line_scanner scanner(line);
-  scanner.read(data.mods,"S");
-  scanner.read(data.nlinks,"sSs");
-  scanner.read(data.user,"S");
-  scanner.read(data.space1,"s");
-  scanner.read(data.group,"S");
-  if(data.mods[0]=='b'||data.mods[0]=='c'){
-    scanner.read(data.size,"sSsSs"); // number, number
+  scanner.read(data.mods, "S");
+  scanner.read(data.nlinks, "sSs");
+  scanner.read(data.user, "S");
+  scanner.read(data.space1, "s");
+  scanner.read(data.group, "S");
+  if (data.mods[0] == 'b' || data.mods[0] == 'c') {
+    scanner.read(data.size, "sSsSs"); // number, number
   }else{
-    scanner.read(data.size,"sSs");
+    scanner.read(data.size, "sSs");
   }
-  scanner.read(data.time,args.flag_time?"Ss":"SsSs");
+  scanner.read(data.time, args.flag_time ? "Ss" : "SsSs");
 
   /*
   scanner.read(data.file,"S");
   scanner.read(data.note,"*");
   /*/
-  for(;;){
-    std::string s;scanner.read(s,"s");
-    std::string w;scanner.read(w,"S");
-    if(w.size()==0)break;
-    if(w!="->"){
-      data.file+=s;
-      data.file+=w;
-    }else{
+  for (;;) {
+    std::string s; scanner.read(s, "s");
+    std::string w; scanner.read(w, "S");
+    if (w.size() == 0) break;
+    if (w != "->") {
+      data.file += s;
+      data.file += w;
+    } else {
       // data.note=" -> "
-      data.note=s;
-      data.note+=w;
+      data.note = s;
+      data.note += w;
       s.clear();
-      scanner.read(s,"s");
-      data.note+=s;
+      scanner.read(s, "s");
+      data.note += s;
 
       // data.link
-      scanner.read(data.link,"*");
+      scanner.read(data.link, "*");
       break;
     }
   }
@@ -108,7 +108,7 @@ void read_line(read_data& data,const std::string line){
 //******************************************************************************
 //    colored data
 //------------------------------------------------------------------------------
-struct line_data{
+struct line_data {
   colored_string mods;
   std::string nlinks;
   colored_string user;
@@ -120,30 +120,30 @@ struct line_data{
   std::string note;
   colored_string link;
 public:
-  line_data(const read_data& data)
-    :mods(data.mods)
-    ,nlinks(data.nlinks)
-    ,user(data.user)
-    ,space1(data.space1)
-    ,group(data.group)
-    ,size(data.size)
-    ,time(data.time)
-    ,file(data.file)
-    ,note(data.note)
-    ,link(data.link)
+  line_data(const read_data& data):
+    mods(data.mods),
+    nlinks(data.nlinks),
+    user(data.user),
+    space1(data.space1),
+    group(data.group),
+    size(data.size),
+    time(data.time),
+    file(data.file),
+    note(data.note),
+    link(data.link)
   {}
 public:
-  void print(){
+  void print() {
     mods.print();
-    std::printf("%s",nlinks.c_str());
+    std::printf("%s", nlinks.c_str());
     user.print();
-    std::printf("%s",space1.c_str());
-    std::printf("%s",group.c_str());
-    std::printf("%s",size.c_str());
+    std::printf("%s", space1.c_str());
+    std::printf("%s", group.c_str());
+    std::printf("%s", size.c_str());
     time.print();
     std::putchar(' ');
     file.print();
-    std::printf("%s",note.c_str());
+    std::printf("%s", note.c_str());
     link.print();
     std::putchar('\n');
   }
@@ -155,78 +155,78 @@ public:
 ft::map_t extmap;
 
 //------------------------------------------------------------------------------
-void color_modifier(line_data& ldata){
-  if(ldata.mods[0]=='d'){
-    ldata.mods.set_fc(cc::blue,0);
-  }else if(ldata.mods[0]=='l'){
-    ldata.mods.set_fc(cc::cyan,0);
+void color_modifier(line_data& ldata) {
+  if (ldata.mods[0] == 'd') {
+    ldata.mods.set_fc(cc::blue, 0);
+  } else if (ldata.mods[0] == 'l') {
+    ldata.mods.set_fc(cc::cyan, 0);
   }
 
-  for(int i=1;i<=9;i++){
-    switch(ldata.mods[i]){
-    case 'r':ldata.mods.set_fc(cc::blue,i);break;
-    case 'w':ldata.mods.set_fc(cc::red,i);break;
-    case 'x':ldata.mods.set_fc(cc::green,i);break;
-    case '-':ldata.mods.set_fc(cc::gray,i);break;
+  for (int i = 1;i<=9;i++) {
+    switch (ldata.mods[i]) {
+    case 'r': ldata.mods.set_fc(cc::blue,i); break;
+    case 'w': ldata.mods.set_fc(cc::red,i); break;
+    case 'x': ldata.mods.set_fc(cc::green,i); break;
+    case '-': ldata.mods.set_fc(cc::gray,i); break;
     case 't':
-      ldata.mods.set_fc(cc::white,i);
-      if(ldata.mods[i-1]=='w')
-        ldata.mods.set_bc(cc::darkG,i);
+      ldata.mods.set_fc(cc::white, i);
+      if (ldata.mods[i - 1] == 'w')
+        ldata.mods.set_bc(cc::darkG, i);
       else
-        ldata.mods.set_bc(cc::darkB,i);
+        ldata.mods.set_bc(cc::darkB, i);
       break;
     default:
-      ldata.mods.set_fc(cc::white,i);
-      ldata.mods.set_bc(cc::black,i);
+      ldata.mods.set_fc(cc::white, i);
+      ldata.mods.set_bc(cc::black, i);
       break;
     }
   }
 }
 
 //------------------------------------------------------------------------------
-void color_filename(line_data& ldata){
+void color_filename(line_data& ldata) {
   // filetype and color
-  switch(ldata.mods[0]){
+  switch (ldata.mods[0]) {
   case 'd':
     ldata.file.set_fc(cc::blue);
-    ldata.mods.set_fc(cc::blue,0);
+    ldata.mods.set_fc(cc::blue, 0);
     return;
   case 'l':
     ldata.file.set_fc(cc::cyan);
-    ldata.mods.set_fc(cc::cyan,0);
+    ldata.mods.set_fc(cc::cyan, 0);
     return;
   case 'b': // block device
   case 'c': // character device
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::yellow);
-    ldata.mods.set_bc(cc::black,0);
-    ldata.mods.set_fc(cc::yellow,0);
+    ldata.mods.set_bc(cc::black, 0);
+    ldata.mods.set_fc(cc::yellow, 0);
     return;
   case 's': // socket ?
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::green);
-    ldata.mods.set_bc(cc::black,0);
-    ldata.mods.set_fc(cc::green,0);
+    ldata.mods.set_bc(cc::black, 0);
+    ldata.mods.set_fc(cc::green, 0);
     return;
   case 'p': // pipe (fifo)
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::cyan);
-    ldata.mods.set_bc(cc::black,0);
-    ldata.mods.set_fc(cc::cyan,0);
+    ldata.mods.set_bc(cc::black, 0);
+    ldata.mods.set_fc(cc::cyan, 0);
     return;
   }
 
-  if(ldata.mods[9]=='t'){
+  if (ldata.mods[9] == 't') {
     ldata.file.set(ldata.mods.get(9));
     return;
-  }else if(ldata.mods[3]=='x'){
+  } else if(ldata.mods[3] == 'x') {
     ldata.file.set_fc(cc::green);
     return;
   }
 
   // extension
-  ft::map_t::iterator i=extmap.find(get_extension(ldata.file.str));
-  if(i!=extmap.end())switch(i->second){
+  ft::map_t::iterator i = extmap.find(get_extension(ldata.file.str));
+  if (i != extmap.end()) switch(i->second) {
   case ft::image:
     ldata.file.set_fc(cc::magenta);
     return;
@@ -239,86 +239,85 @@ void color_filename(line_data& ldata){
   }
 }
 //------------------------------------------------------------------------------
-void color_time(line_data& ldata){
-  if(args.flag_time){
-    std::time_t time=(std::time_t)std::atol(ldata.time.str.c_str());
+void color_time(line_data& ldata) {
+  if (args.flag_time) {
+    std::time_t time = (std::time_t) std::atol(ldata.time.str.c_str());
 
     // format time
-    std::tm* dt=std::localtime(&time);
+    std::tm* dt = std::localtime(&time);
     char buff[128];
-    std::sprintf(buff,"%04d-%02d-%02d %02d:%02d:%02d",
-      1900+dt->tm_year,1+dt->tm_mon,dt->tm_mday,
-      dt->tm_hour,dt->tm_min,dt->tm_sec
-      );
-    ldata.time=buff;
+    std::sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d",
+      1900 + dt->tm_year, 1 + dt->tm_mon, dt->tm_mday,
+      dt->tm_hour, dt->tm_min, dt->tm_sec);
+    ldata.time = buff;
 
     // color time
-    std::time_t now=std::time(NULL);
-    float delta=(float)now-(float)time;
-    if(delta<0){
+    std::time_t now = std::time(NULL);
+    float delta = (float) now - (float) time;
+    if (delta < 0) {
       ldata.time.set_fc(cc::yellow);
       ldata.time.set_bc(cc::black);
-    }else if((delta/=60)<=1){
+    } else if ((delta /= 60) <= 1) {
       ldata.time.set_fc(cc::red);
-    }else if(delta<=5){
+    } else if (delta <= 5) {
       ldata.time.set_fc(cc::cyan);
-    }else if(delta<=15){
+    } else if (delta <= 15) {
       ldata.time.set_fc(cc::green);
-    }else if((delta/=60)<=1){
+    } else if ((delta /= 60) <= 1) {
       ldata.time.set_fc(cc::blue);
-    }else if(delta<=6){
+    } else if (delta <= 6) {
       ldata.time.set_fc(cc::darkC);
-    }else if((delta/=24)<=1){
+    } else if ((delta /= 24) <= 1) {
       ldata.time.set_fc(cc::darkB);
-    }else if(delta<=7){
+    } else if (delta <= 7) {
       ldata.time.set_fc(cc::darkM);
-    }else if(delta<=30){
+    } else if (delta <= 30) {
       ldata.time.set_fc(cc::darkY);
     }
   }
 }
 //------------------------------------------------------------------------------
-void color_link(line_data& ldata){
-  if(ldata.mods[0]!='l')return;
+void color_link(line_data& ldata) {
+  if (ldata.mods[0] != 'l') return;
 
 #ifdef mwg_modls_unistd_available
   //■ディレクトリのメンバに対しては ldata.file の部分に表示されるのは単なるファイル名。
   char buff[1000];
-  ssize_t len=readlink(ldata.file.c_str(),buff,sizeof(buff)-1);
-  if(0<=len&&len<sizeof(buff)){
-    buff[len]='\0';
+  ssize_t len = readlink(ldata.file.c_str(), buff, sizeof(buff) - 1);
+  if (0 <= len && len < sizeof(buff)) {
+    buff[len] = '\0';
     struct stat st;
-    if(::stat(buff,&st)==0){
-      if(S_ISDIR(st.st_mode)){ // d
+    if (::stat(buff, &st) == 0) {
+      if (S_ISDIR(st.st_mode)) { // d
         ldata.link.set_fc(cc::blue);
         return;
-      }else if(S_ISLNK(st.st_mode)){ // h
+      } else if (S_ISLNK(st.st_mode)) { // h
         ldata.link.set_fc(cc::cyan);
         return;
-      }else if(S_ISFIFO(st.st_mode)){ // p
+      } else if (S_ISFIFO(st.st_mode)) { // p
         ldata.link.set_bc(cc::black);
         ldata.link.set_fc(cc::cyan);
         return;
-      }else if(S_ISCHR(st.st_mode)||S_ISBLK(st.st_mode)){ // b c
+      } else if (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)) { // b c
         ldata.link.set_bc(cc::black);
         ldata.link.set_fc(cc::yellow);
         return;
-      }else if(S_ISSOCK(st.st_mode)){ // s
+      } else if (S_ISSOCK(st.st_mode)) { // s
         ldata.link.set_bc(cc::black);
         ldata.link.set_fc(cc::green);
         return;
-      }else if(S_ISVTX&st.st_mode){ // t
+      } else if (S_ISVTX&st.st_mode) { // t
         ldata.link.set_fc(cc::white);
-        if(S_IWOTH&st.st_mode) // o+w 他人書込可能
+        if (S_IWOTH & st.st_mode) // o+w 他人書込可能
           ldata.link.set_bc(cc::darkG);
         else
           ldata.link.set_bc(cc::darkB);
         return;
-      }else if((S_IXUSR|S_IXGRP|S_IXOTH)&st.st_mode){ // x
+      } else if ((S_IXUSR | S_IXGRP | S_IXOTH) & st.st_mode) { // x
         ldata.link.set_fc(cc::green);
         return;
       }
-    }else{
+    } else {
       // error
       ldata.link.set_fc(cc::white);
       ldata.link.set_bc(cc::red);
@@ -328,9 +327,9 @@ void color_link(line_data& ldata){
 #endif
 
   // extension
-  ft::map_t::iterator i=extmap.find(get_extension(ldata.link.str));
-  if(i!=extmap.end()){
-    switch(i->second){
+  ft::map_t::iterator i = extmap.find(get_extension(ldata.link.str));
+  if (i != extmap.end()) {
+    switch (i->second) {
     case ft::image:
       ldata.link.set_fc(cc::magenta);
       return;
@@ -345,12 +344,12 @@ void color_link(line_data& ldata){
 }
 //******************************************************************************
 // -rwxr-xr-x  1 k-murase jlc   74 Nov 11 15:27 escape-regex
-void process_line(const std::string line){
+void process_line(const std::string& line) {
   read_data rdata;
-  read_line(rdata,line);
+  read_line(rdata, line);
 
   line_data ldata(rdata);
-  if(ldata.mods.size()!=10&&ldata.mods.size()!=11){
+  if (ldata.mods.size() != 10 && ldata.mods.size() != 11) {
     puts(line.c_str());
     return;
   }
@@ -364,12 +363,12 @@ void process_line(const std::string line){
   ldata.print();
 }
 
-int main(int argc,char** argv){
-  if(!args.read(argc,argv))return 1;
+int main(int argc, char** argv) {
+  if (!args.read(argc, argv)) return 1;
 
-  if(args.lines.size()>0){
+  if (args.lines.size() > 0) {
     typedef std::vector<const char*>::iterator it;
-    for(it i=args.lines.begin();i!=args.lines.end();i++){
+    for (it i = args.lines.begin(); i != args.lines.end(); i++) {
       process_line(*i);
     }
     return 0;
@@ -383,7 +382,7 @@ int main(int argc,char** argv){
 #endif
 
   std::string line;
-  while(std::getline(std::cin,line)){
+  while (std::getline(std::cin, line)) {
     process_line(line);
   }
   return 0;
