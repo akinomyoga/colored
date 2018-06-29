@@ -20,7 +20,12 @@ diff.o: diff.cpp
 # install
 
 .PHONY: install
-PREFIX := $(HOME)/.mwg
+
+ifneq ($(MWGDIR),)
+  PREFIX := $(MWGDIR)
+else
+  PREFIX := $(HOME)/.mwg
+endif
 
 share_directory := $(PREFIX)/share/colored
 directories += $(share_directory)
@@ -34,7 +39,7 @@ $(share_directory)/diff.exe: diff.exe | $(share_directory)
 
 install: $(bin_directory)/colored
 $(bin_directory)/colored: colored | $(bin_directory)
-	sed "/^colored_share_directory=/c colored_share_directory=$(share_directory)" $< > $@ && chmod +x $@
+	sed "/^colored_share_directory=/c colored_share_directory='$(share_directory)'" $< > $@ && chmod +x $@
 
 # misc
 

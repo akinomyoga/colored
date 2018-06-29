@@ -1,6 +1,6 @@
 #!/bin/bash
 
-colored_share_directory=$HOME/.mwg/share/colored
+colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
 
 function print-help {
   cat <<EOF
