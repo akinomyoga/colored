@@ -1,0 +1,121 @@
+#!/bin/bash
+
+colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
+
+function print-help {
+  cat <<EOF
+usage: colored [OPTIONS] COMMAND [ARGS...]
+usage: COMMAND ARGS... | colored -t TYPE [OPTIONS]
+
+In the first form, colored command serves as a colored version of COMMAND.
+In the second form, colored command serves as a filter for TYPE-formatted stream.
+
+COMMAND/TYPE
+
+  Currently only "diff" is supported.
+
+  diff
+
+
+OPTIONS
+
+  --help
+
+    Show this help and exit.
+
+  -p, --pager
+  --pager=PAGER
+  -F, --pager-with-long-content
+  --no-pager
+
+    Select a pager which will be used if stdout is connected to a terminal.
+    If \`-p' or \`--pager' is specified, the default pager \`\${PAGER:-less}' is used.
+    With the form \`--pager=PAGER', a pager can be explicity specified.
+    If \`-F' or \`--pager-with-long-content' is specified \`less -FSrX' will be used for the pager.
+    If \'--no-pager' is specified, pagers are not used. This is the default.
+
+  --
+
+    If this option is specified, the trailing arguments are treated as a command
+
+  -tTYPE
+  -t TYPE
+
+    Specify a color type.
+
+EOF
+}
+
+if (($#==0)); then
+  print-help >&2
+  exit 1
+fi
+
+opt_pager=
+opt_type=
+opt_command=()
+opt_help=
+function read_arguments {
+  while (($#)); do
+    local arg=$1
+    shift
+    case "$arg" in
+    (--help) opt_help=1 ;;
+
+    (--no-pager) opt_pager= ;;
+    (-p|--pager) opt_pager=${PAGER:-less} ;;
+    (-F|--pager-with-long-content) opt_pager='less -FSrX' ;;
+    (--pager=*)  opt_pager=${arg#*=} ;;
+
+    (-t)  opt_type=$1; shift ;;
+    (-t*) opt_type=${arg:2}  ;;
+
+    (--)
+      opt_command=("$@")
+      return ;;
+
+    (colored) ;; # ignore
+
+    (-*)
+      echo "colored: unrecognized option $arg" >&2
+      exit 1 ;;
+    (*)
+      opt_command=("$arg" "$@")
+      return ;;
+
+    esac
+  done
+}
+read_arguments "$@"
+
+function do-coloring {
+  if [[ $opt_help ]]; then
+    print-help
+
+  elif [[ $opt_type ]]; then
+    case $opt_type in
+    (diff)
+      exec "$colored_share_directory/diff.exe" ;;
+    (*)
+      echo "unrecognized type '$opt_type'" >&2 ;;
+    esac
+
+  elif ((${#opt_command[@]})); then
+    case ${opt_command[0]} in
+    (diff)
+      "${opt_command[@]}" | "$colored_share_directory/diff.exe"
+      return "${PIPESTATUS[0]}" ;;
+    (*)
+      echo "colored: unrecognized target command '$arg'" >&2
+      exit 1 ;;
+    esac
+
+  fi
+}
+
+if [[ -t 1 && $opt_pager ]]; then
+  do-coloring | eval "$opt_pager"
+  exit "${PIPESTATUS[0]}"
+else
+  do-coloring
+fi
