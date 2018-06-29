@@ -2,56 +2,6 @@
 #include <ctime>
 #include <cstring>
 
-#if 0
-#define ESC(x) "\33[" #x "m"
-
-int datenum(std::time_t t){
-  std::tm* dt=std::localtime(&t);
-  return dt->tm_year*10000+dt->tm_mon*100+dt->tm_mday;
-}
-
-class LineProc{
-  void color_mod(){
-    //mod=ESC(31)+mod+ESC(0);
-  }
-  void color_lnk(){
-    //printf("%x ",mod[3]);
-    if(mod.find("total")>=0||lnk=="1")return;
-    lnk=ESC(1;36)+lnk+ESC(0);
-  }
-  void color_usr(){
-    if(usr=="k-murase")return;
-    usr=ESC(34)+usr+ESC(0);
-  }
-  void color_dt(){
-    time_t ct=time(NULL);
-    time_t ft=atol(sec.c_str());
-    int cd=datenum(ct);
-    int fd=datenum(ft);
-
-    int i=ct-ft;
-    if(i<60){
-      dt=ESC(1;32)+dt+ESC(0);
-    }else if(i<300){
-      dt=ESC(1;36)+dt+ESC(0);
-    }else if(i<900){
-      dt=ESC(1;34)+dt+ESC(0);
-    }else if(cd==fd){
-      dt=ESC(0;35)+dt+ESC(0);
-    }
-  }
-  void color_fn(){
-    std::string ext=get_extension(fn);
-    if(ext==".gif"||ext==".eps"){
-      fn=set_color(fn,35);
-    }else{
-      //fn=fn+" (ext == "+ext+")";
-    }
-  }
-};
-
-#endif
-
 #include <cstdio>
 #include <iostream>
 #include <string>
