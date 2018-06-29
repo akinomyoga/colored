@@ -95,7 +95,7 @@ function do-coloring {
   elif [[ $opt_type ]]; then
     case $opt_type in
     (diff)
-      exec "$colored_share_directory/diff" ;;
+      exec "$colored_share_directory/diff.exe" ;;
     (*)
       echo "unrecognized type '$opt_type'" >&2 ;;
     esac
@@ -103,7 +103,7 @@ function do-coloring {
   elif ((${#opt_command[@]})); then
     case ${opt_command[0]} in
     (diff)
-      "${opt_command[@]}" | "$colored_share_directory/diff"
+      "${opt_command[@]}" | "$colored_share_directory/diff.exe"
       return "${PIPESTATUS[0]}" ;;
     (*)
       echo "colored: unrecognized target command '$arg'" >&2

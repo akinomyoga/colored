@@ -11,8 +11,8 @@ CXXFLAGS := -O2 -Wall -std=c++11
 LDFLAGS:=
 LIBS:=
 
-all: diff
-diff: diff.o
+all: diff.exe
+diff.exe: diff.o
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 diff.o: diff.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -28,8 +28,8 @@ directories += $(share_directory)
 bin_directory := $(PREFIX)/bin
 directories += $(bin_directory)
 
-install: $(share_directory)/diff
-$(share_directory)/diff: diff | $(share_directory)
+install: $(share_directory)/diff.exe
+$(share_directory)/diff.exe: diff.exe | $(share_directory)
 	cp $< $@
 
 install: $(bin_directory)/colored
