@@ -1,7 +1,8 @@
 # gitignore
 
-/diff.exe
+/*.exe
 /*.o
 
 /sample
 /dist
+/out

@@ -48,7 +48,7 @@ public:
   word* colors;
   std::string str;
 public:
-  colored_string(const std::string& str): str(str), colors(NULL) {
+  colored_string(const std::string& str): colors(NULL), str(str) {
     this->alloc_colors(str.size());
     color = cc::cc_default;
   }
@@ -84,6 +84,7 @@ public:
     std::memcpy(this->colors, oldcolors, sizeof(word) * std::min(oldsize, newsize));
 
     delete[] oldcolors;
+    return *this;
   }
 public:
   void set_fc(byte c){

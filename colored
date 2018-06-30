@@ -1,6 +1,7 @@
 #!/bin/bash
 
 colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
+colored_ls_supports_time_style=1
 
 function print-help {
   cat <<EOF
@@ -88,6 +89,47 @@ function read_arguments {
 }
 read_arguments "$@"
 
+## @var[out] opt_list
+function colored-ls/read-arguments {
+  opt_list=
+
+  while (($#)); do
+    local arg=$1; shift
+    case $arg in
+    (--block-size|--format|--hide|--indicator-style|--ignore)      shift ;;
+    (--quoting-style|--sort|--time|--time-style|--tabsize|--width) shift ;;
+    (--numeric-uid-gid) opt_list=1 ;;
+    (--) break ;;
+    (--*) ;;
+    (-*)
+      for ((i=1;i<${#arg};i++)); do
+        case ${arg:i:1} in
+        ([lnog]) opt_list=1 ;;
+        (x) opt_list= ;;
+        esac
+      done
+    esac
+  done
+}
+
+function colored-ls {
+  local opt_list=
+  colored-ls/read-arguments "$@"
+
+  if [[ $opt_list ]]; then
+    # todo: -o, -g が指定された時はフィールドが減る
+    if [[ $colored_ls_supports_time_style ]]; then
+      ls "$@" -l --time-style=+%010s | "$colored_share_directory"/modls.exe -t
+      return "${PIPESTATUS[0]}"
+    else
+      ls "$@" -l | "$colored_share_directory"/modls.exe
+      return "${PIPESTATUS[0]}"
+    fi
+  else
+    ls "$@"
+  fi
+}
+
 function do-coloring {
   if [[ $opt_help ]]; then
     print-help
@@ -96,15 +138,19 @@ function do-coloring {
     case $opt_type in
     (diff)
       exec "$colored_share_directory/diff.exe" ;;
+    (ls|ll)
+      exec "$colored_share_directory/modls.exe" ;;
     (*)
       echo "unrecognized type '$opt_type'" >&2 ;;
     esac
 
   elif ((${#opt_command[@]})); then
-    case ${opt_command[0]} in
+    case ${opt_command[0]##*/} in
     (diff)
       "${opt_command[@]}" | "$colored_share_directory/diff.exe"
       return "${PIPESTATUS[0]}" ;;
+    (ls)
+      colored-ls "${opt_command[@]:1}" ;;
     (*)
       echo "colored: unrecognized target command '$arg'" >&2
       exit 1 ;;

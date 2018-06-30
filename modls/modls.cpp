@@ -284,7 +284,7 @@ void color_link(line_data& ldata) {
   //■ディレクトリのメンバに対しては ldata.file の部分に表示されるのは単なるファイル名。
   char buff[1000];
   ssize_t len = readlink(ldata.file.c_str(), buff, sizeof(buff) - 1);
-  if (0 <= len && len < sizeof(buff)) {
+  if (0 <= len && (std::size_t) len < sizeof(buff)) {
     buff[len] = '\0';
     struct stat st;
     if (::stat(buff, &st) == 0) {
