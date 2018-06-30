@@ -1,7 +1,8 @@
 #!/bin/bash
 
 colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
-colored_ls_supports_time_style=1
+ls_has_longopt_time_style=1
+ls_has_longopt_color=1
 
 function print-help {
   cat <<EOF
@@ -118,7 +119,7 @@ function colored-ls {
 
   if [[ $opt_list ]]; then
     # todo: -o, -g が指定された時はフィールドが減る
-    if [[ $colored_ls_supports_time_style ]]; then
+    if [[ $ls_has_longopt_time_style ]]; then
       ls "$@" -l --time-style=+%010s | "$colored_share_directory"/modls.exe -t
       return "${PIPESTATUS[0]}"
     else
@@ -126,7 +127,13 @@ function colored-ls {
       return "${PIPESTATUS[0]}"
     fi
   else
-    ls "$@"
+    if [[ $ls_has_longopt_color ]]; then
+      # GNU coreutils ls
+      ls --color "$@"
+    else
+      # Free BSD ls has an option '-G'
+      ls -G "$@"
+    fi
   fi
 }
 

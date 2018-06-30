@@ -82,9 +82,7 @@ $(share_directory)/modls.exe: modls.exe | $(share_directory)
 
 install: $(bin_directory)/colored
 $(bin_directory)/colored: colored | $(bin_directory)
-	ls_supports_time_style=$$(ls --help | grep -qe '--time-style=' && echo 1); \
-	sed -e "/^colored_share_directory=/c colored_share_directory='$(share_directory)'" \
-	    -e "s/^\(colored_ls_supports_time_style=\).*/\1$$ls_supports_time_style/" $< > $@ && chmod +x $@
+	share_directory='$(share_directory)' bash make.sh install-colored $< $@
 
 #------------------------------------------------------------------------------
 #
