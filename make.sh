@@ -26,6 +26,17 @@ function sub:install-colored {
   chmod +x "$dst"
 }
 
+function sub:update {
+  # remove binaries from old modls
+  local name
+  for name in l ll la; do
+    [[ -x ~/.mwg/bin/$name ]] && rm ~/.mwg/bin/"$name"
+  done
+  [[ -d ~/.mwg/share/modls ]] &&
+    rm -r ~/.mwg/share/modls
+  return 0
+}
+
 if declare -f "sub:$1" &>/dev/null; then
   "sub:$@"
 else

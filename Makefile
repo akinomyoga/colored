@@ -83,6 +83,9 @@ install: $(bin_directory)/colored
 $(bin_directory)/colored: colored | $(bin_directory)
 	share_directory='$(share_directory)' bash make.sh install-colored $< $@
 
+install:
+	bash make.sh update
+
 #------------------------------------------------------------------------------
 #
 # misc
