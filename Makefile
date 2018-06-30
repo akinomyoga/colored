@@ -31,9 +31,9 @@ CPPFLAGS = -MD -MF $(@:.o=.dep) -MP
 
 $(build_directory)/diff.o: diff.cpp | $(build_directory)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
-diff.exe: $(build_directory)/diff.o
+$(build_directory)/diff.exe: $(build_directory)/diff.o
 	$(CXX) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
-all: diff.exe
+all: $(build_directory)/diff.exe
 
 
 # modls
@@ -47,9 +47,9 @@ $(build_directory)/modls.o: modls/modls.cpp | $(build_directory)
 	$(CXX) $(CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
 $(build_directory)/termcolor.o: modls/termcolor.cpp | $(build_directory)
 	$(CXX) $(CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
-modls.exe: $(build_directory)/modls.o $(build_directory)/termcolor.o
+$(build_directory)/modls.exe: $(build_directory)/modls.o $(build_directory)/termcolor.o
 	$(CXX) $(modls_CXXFLAGS) $(LDFLAGS) -o $@ $^ $(modls_LIBS)
-all: modls.exe
+all: $(build_directory)/modls.exe
 
 
 #------------------------------------------------------------------------------
@@ -73,11 +73,11 @@ bin_directory := $(PREFIX)/bin
 directories += $(bin_directory)
 
 install: $(share_directory)/diff.exe
-$(share_directory)/diff.exe: diff.exe | $(share_directory)
+$(share_directory)/diff.exe: $(build_directory)/diff.exe | $(share_directory)
 	cp $< $@
 
 install: $(share_directory)/modls.exe
-$(share_directory)/modls.exe: modls.exe | $(share_directory)
+$(share_directory)/modls.exe: $(build_directory)/modls.exe | $(share_directory)
 	cp $< $@
 
 install: $(bin_directory)/colored
