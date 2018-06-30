@@ -26,7 +26,6 @@ directories += $(build_directory)
 -include $(wildcard $(build_directory)/*.dep)
 CPPFLAGS = -MD -MF $(@:.o=.dep) -MP
 
-
 # diff
 
 $(build_directory)/diff.o: diff.cpp | $(build_directory)
@@ -94,3 +93,12 @@ $(directories):
 
 clean:
 	-rm -rf out/*
+
+# PWDNAME:=$(subst $(dir $(PWD)),,$(PWD))
+# dist: dist_xz
+# #dist: dist_xz dist_gz
+# .PHONY: dist_xz dist_gz
+# dist_xz:
+# 	DATE=`date +%Y%m%d` && cd .. && tar cavf modls.$$DATE.tar.xz --exclude='*~' --exclude='*.o' --exclude='modls$(EXEEXT)' --exclude=*/backup "$(PWDNAME)"
+# dist_gz:
+# 	DATE=`date +%Y%m%d` && cd .. && tar cavf modls.$$DATE.tar.gz --exclude='*~' --exclude='*.o' --exclude='modls$(EXEEXT)' --exclude=*/backup "$(PWDNAME)"

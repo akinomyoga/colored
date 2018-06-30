@@ -17,6 +17,30 @@
 
   2018-07-01 他に exa (written in Rust) というものもある。
 
+* l.csh の内容 (書き方)
+
+  古い modls の l, la, ll は削除した
+  それに伴って l.csh, la.csh, ll.csh も削除する。
+  csh による代替実装は提供していないが、
+  将来的に対応する予定もない。
+  しかし、一応どのように書くかの記録として以下に残しておく。
+  引数が 0 でも "$@" が一つ以上の単語に展開されてしまうということだろうか。
+
+  #!/bin/csh
+
+  if ( $#argv == 0 ) then
+      ls -lB | ~/.mwg/modls
+  else
+      ls -lB "$@" | ~/.mwg/modls
+  endif
+
+* alias samples
+
+  alias ls='colored ls --show-control-chars'
+  alias l='ls -lB'
+  alias la='ls -la'
+  alias ll='ls -l'
+
 ------------------------------------------------------------------------------
   ToDo
 ------------------------------------------------------------------------------
