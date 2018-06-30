@@ -93,6 +93,10 @@ read_arguments "$@"
 ## @var[out] opt_list
 function colored-ls/read-arguments {
   opt_list=
+  opt_no_user=
+  opt_no_group=
+  opt_context=
+  opt_dired=
 
   while (($#)); do
     local arg=$1; shift
@@ -100,32 +104,57 @@ function colored-ls/read-arguments {
     (--block-size|--format|--hide|--indicator-style|--ignore)      shift ;;
     (--quoting-style|--sort|--time|--time-style|--tabsize|--width) shift ;;
     (--numeric-uid-gid) opt_list=1 ;;
+    (--no-group) opt_no_group=1 ;;
+    (--context) opt_context=1 ;;
+    (--dired) opt_dired=1 ;;
     (--) break ;;
     (--*) ;;
     (-*)
       for ((i=1;i<${#arg};i++)); do
         case ${arg:i:1} in
-        ([lnog]) opt_list=1 ;;
+        ([ln]) opt_list=1 ;;
+        (g) opt_list=1 opt_no_user=1  ;;
+        (o) opt_list=1 opt_no_group=1 ;;
+        (G) 
+          if [[ $ls_has_longopt_color ]]; then
+            # --color がない時は -G が色付き出力の意味なので、
+            # --color がある時のみ -G をグループなしと解釈する。
+            opt_no_group=1
+          fi ;;
+        (Z) opt_context=1 ;;
         (x) opt_list= ;;
+        (D) opt_dired= ;;
         esac
       done
     esac
   done
 }
 
+#function colored/array#append {
+#  eval "$1+=(\"\$2\")"
+#}
+function colored/array#append {
+  eval "$1[\${#$1[@]}]=\$2"
+}
+
 function colored-ls {
-  local opt_list=
+  local opt_list= opt_no_group= opt_no_user= opt_context= opt_dired=
   colored-ls/read-arguments "$@"
 
-  if [[ $opt_list ]]; then
+  if [[ $opt_list && ! $opt_dired ]]; then
     # todo: -o, -g が指定された時はフィールドが減る
+    local -a ls_options=() modls_options=()
     if [[ $ls_has_longopt_time_style ]]; then
-      ls "$@" -l --time-style=+%010s | "$colored_share_directory"/modls.exe -t
-      return "${PIPESTATUS[0]}"
-    else
-      ls "$@" -l | "$colored_share_directory"/modls.exe
-      return "${PIPESTATUS[0]}"
+      colored/array#append ls_options --time-style=+%010s
+      colored/array#append modls_options -t
     fi
+
+    [[ $opt_no_group ]] && colored/array#append modls_options -G
+    [[ $opt_no_user  ]] && colored/array#append modls_options -U
+    [[ $opt_context  ]] && colored/array#append modls_options -Z
+
+    ls "$@" -l "${ls_options[@]}" | "$colored_share_directory"/modls.exe "${modls_options[@]}"
+    return "${PIPESTATUS[0]}"
   else
     if [[ $ls_has_longopt_color ]]; then
       # GNU coreutils ls

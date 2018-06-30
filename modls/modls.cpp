@@ -21,14 +21,20 @@
 //******************************************************************************
 //    Argument Reader
 //------------------------------------------------------------------------------
-class Argument: public mwg::ArgumentReader {
+class params_t: public mwg::ArgumentReader {
   typedef mwg::ArgumentReader base;
 public:
   bool flag_time;
+  bool flag_user;
+  bool flag_group;
+  bool flag_context;
   std::vector<const char*> lines;
 public:
-  Argument(): base("modls") {
+  params_t(): base("modls") {
     this->flag_time = false;
+    this->flag_user = true;
+    this->flag_group = true;
+    this->flag_context = false;
   }
   void print_usage() {
     std::printf("usage: modls [options]\n");
@@ -41,6 +47,15 @@ public:
     switch (letter) {
     case 't':
       this->flag_time = true;
+      return true;
+    case 'U':
+      this->flag_user = false;
+      return true;
+    case 'G':
+      this->flag_group = false;
+      return true;
+    case 'Z':
+      this->flag_context = true;
       return true;
     default:
       return false;
@@ -57,6 +72,9 @@ struct read_data {
   std::string user;
   std::string space1;
   std::string group;
+  std::string space2;
+  std::string se_context;
+  std::string space3;
   std::string size;
   std::string time;
   std::string file;
@@ -68,13 +86,22 @@ void read_line(read_data& data, const std::string& line) {
   line_scanner scanner(line);
   scanner.read(data.mods, "S");
   scanner.read(data.nlinks, "sSs");
-  scanner.read(data.user, "S");
-  scanner.read(data.space1, "s");
-  scanner.read(data.group, "S");
+  if (args.flag_user) {
+    scanner.read(data.user, "S");
+    scanner.read(data.space1, "s");
+  }
+  if (args.flag_group) {
+    scanner.read(data.group, "S");
+    scanner.read(data.space2, "s");
+  }
+  if (args.flag_context) {
+    scanner.read(data.se_context, "S");
+    scanner.read(data.space3, "s");
+  }
   if (data.mods[0] == 'b' || data.mods[0] == 'c') {
-    scanner.read(data.size, "sSsSs"); // number, number
+    scanner.read(data.size, "SsSs"); // number, number
   }else{
-    scanner.read(data.size, "sSs");
+    scanner.read(data.size, "Ss");
   }
   scanner.read(data.time, args.flag_time ? "Ss" : "SsSs");
 
@@ -114,6 +141,9 @@ struct line_data {
   colored_string user;
   std::string space1;
   std::string group;
+  std::string space2;
+  std::string se_context;
+  std::string space3;
   std::string size;
   colored_string time;
   colored_string file;
@@ -126,6 +156,9 @@ public:
     user(data.user),
     space1(data.space1),
     group(data.group),
+    space2(data.space2),
+    se_context(data.se_context),
+    space3(data.space3),
     size(data.size),
     time(data.time),
     file(data.file),
@@ -136,9 +169,14 @@ public:
   void print() {
     mods.print();
     std::printf("%s", nlinks.c_str());
-    user.print();
-    std::printf("%s", space1.c_str());
-    std::printf("%s", group.c_str());
+    if (args.flag_user) {
+      user.print();
+      std::printf("%s", space1.c_str());
+    }
+    if (args.flag_group)
+      std::printf("%s%s", group.c_str(), space2.c_str());
+    if (args.flag_context)
+      std::printf("%s%s", se_context.c_str(), space3.c_str());
     std::printf("%s", size.c_str());
     time.print();
     std::putchar(' ');
