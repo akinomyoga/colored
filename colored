@@ -1,8 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
 ls_has_longopt_time_style=1
 ls_has_longopt_color=1
+
+#------------------------------------------------------------------------------
+# util from ble
+
+_ble_bash=$((BASH_VERSINFO[0]*10000+BASH_VERSINFO[1]*100+BASH_VERSINFO[2]))
+if ((_ble_bash>=30100)); then
+  function ble/array#push {
+    builtin eval "$1+=(\"\${@:2}\")"
+  }
+else
+  function ble/array#push {
+    while
+      builtin eval "$1[\${#$1[@]}]=\"\$2\""
+      (($#>=3))
+    do
+      set -- "$1" "${@:3}"
+    done
+  }
+fi
+
+#------------------------------------------------------------------------------
 
 function print-help {
   cat <<EOF
@@ -14,9 +35,11 @@ In the second form, colored command serves as a filter for TYPE-formatted stream
 
 COMMAND/TYPE
 
-  Currently only "diff" is supported.
+  Currently only "diff" and "ls" is supported.
 
   diff
+
+  ls
 
 
 OPTIONS
@@ -90,13 +113,23 @@ function read_arguments {
 }
 read_arguments "$@"
 
-## @var[out] opt_list
+#------------------------------------------------------------------------------
+# ls
+
+## @fn colored-ls/read-arguments args...
+##   @var[out] opt_list
+##   @var[out] opt_no_user
+##   @var[out] opt_no_group
+##   @var[out] opt_context
+##   @var[out] opt_dired
+##   @var[out] opt_single
 function colored-ls/read-arguments {
   opt_list=
   opt_no_user=
   opt_no_group=
   opt_context=
   opt_dired=
+  opt_single=
 
   while (($#)); do
     local arg=$1; shift
@@ -123,40 +156,36 @@ function colored-ls/read-arguments {
           fi ;;
         (Z) opt_context=1 ;;
         (x) opt_list= ;;
-        (D) opt_dired= ;;
+        (D) opt_dired=1 ;;
+        (1) opt_single=1 ;;
         esac
       done
     esac
   done
 }
 
-#function colored/array#append {
-#  eval "$1+=(\"\$2\")"
-#}
-function colored/array#append {
-  eval "$1[\${#$1[@]}]=\$2"
-}
-
 function colored-ls {
-  local opt_list= opt_no_group= opt_no_user= opt_context= opt_dired=
+  local opt_list opt_no_group opt_no_user opt_context opt_dired opt_single
   colored-ls/read-arguments "$@"
 
   if [[ $opt_list && ! $opt_dired ]]; then
     # todo: -o, -g が指定された時はフィールドが減る
     local -a ls_options=() modls_options=()
     if [[ $ls_has_longopt_time_style ]]; then
-      colored/array#append ls_options --time-style=+%010s
-      colored/array#append modls_options -t
+      ble/array#push ls_options --time-style=+%010s
+      ble/array#push modls_options -t
     fi
 
-    [[ $opt_no_group ]] && colored/array#append modls_options -G
-    [[ $opt_no_user  ]] && colored/array#append modls_options -U
-    [[ $opt_context  ]] && colored/array#append modls_options -Z
+    [[ $opt_no_group ]] && ble/array#push modls_options -G
+    [[ $opt_no_user  ]] && ble/array#push modls_options -U
+    [[ $opt_context  ]] && ble/array#push modls_options -Z
 
     ls "$@" -l "${ls_options[@]}" | "$colored_share_directory"/modls.exe "${modls_options[@]}"
     return "${PIPESTATUS[0]}"
   else
-    if [[ $ls_has_longopt_color ]]; then
+    if [[ $opt_single || ! -t 1 ]]; then
+      ls "$@"
+    elif [[ $ls_has_longopt_color ]]; then
       # GNU coreutils ls
       ls --color "$@"
     else
@@ -166,6 +195,8 @@ function colored-ls {
   fi
 }
 
+#------------------------------------------------------------------------------
+
 function do-coloring {
   if [[ $opt_help ]]; then
     print-help
@@ -174,7 +205,7 @@ function do-coloring {
     case $opt_type in
     (diff)
       exec "$colored_share_directory/diff.exe" ;;
-    (ls|ll)
+    (ls)
       exec "$colored_share_directory/modls.exe" ;;
     (*)
       echo "unrecognized type '$opt_type'" >&2 ;;
