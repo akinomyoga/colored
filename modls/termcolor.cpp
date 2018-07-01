@@ -6,6 +6,9 @@
 
 #include "colored_string.h"
 
+static const bool aix_colors = true;
+static const bool sgr_bright = false;
+
 #ifdef USE_TERMINFO
 static void tputs0(const char* s) {
   if (!s) return;
@@ -34,20 +37,47 @@ void cc::clear() {
 
 
 static void put_forecolor(byte c) {
-  if (c & 010) {
+  if (c < 8) {
+    std::putchar('3');
+    std::putchar('0' + c);
+    return;
+  }
+
+  if (c < 16 && aix_colors) {
+    std::putchar('9');
+    std::putchar('0' + (c & 007));
+  }
+
+  if (c < 16 && sgr_bright) {
     std::putchar('1');
     std::putchar(';');
+    std::putchar('3');
+    std::putchar('0' + (c & 007));
   }
-  std::putchar('3');
-  std::putchar('0'+(c&07));
+
+  std::printf("38;5;%u", c);
 }
 static void put_backcolor(byte c) {
-  if (c & 010) {
+  if (c < 8) {
+    std::putchar('4');
+    std::putchar('0' + c);
+    return;
+  }
+
+  if (c < 16 && aix_colors) {
+    std::putchar('1');
+    std::putchar('0');
+    std::putchar('0' + (c & 007));
+  }
+
+  if (c < 16 && sgr_bright) {
     std::putchar('5');
     std::putchar(';');
+    std::putchar('4');
+    std::putchar('0' + (c & 007));
   }
-  std::putchar('4');
-  std::putchar('0'+(c&07));
+
+  std::printf("38;5;%u", c);
 }
 
 void cc::set_color(word c) {
