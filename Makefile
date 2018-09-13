@@ -24,7 +24,7 @@ build_directory = out
 directories += $(build_directory)
 
 -include $(wildcard $(build_directory)/*.dep)
-CPPFLAGS = -MD -MF $(@:.o=.dep) -MP
+CPPFLAGS = -MD -MP -MF $(@:.o=.dep) -MP
 
 # diff
 
