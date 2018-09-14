@@ -38,8 +38,13 @@ all: $(build_directory)/diff.exe
 # modls
 
 ifneq ($(use_ncurses),no)
-  modls_CXXFLAGS := $(CXXFLAGS) -DUSE_TERMINFO
-  modls_LIBS     := -lncurses $(LIBS)
+  ifeq ($(use_ncurses),ncursesw)
+    modls_CXXFLAGS := $(CXXFLAGS) -DUSE_TERMINFO='<ncursesw/term.h>'
+    modls_LIBS := -lncursesw $(LIBS)
+  else
+    modls_CXXFLAGS := $(CXXFLAGS) -DUSE_TERMINFO='<ncurses/term.h>'
+    modls_LIBS := -lncurses $(LIBS)
+  endif
 endif
 
 $(build_directory)/modls.o: modls/modls.cpp | $(build_directory)

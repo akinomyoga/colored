@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 #include <cstdio>
 #ifdef USE_TERMINFO
-# include <ncurses/term.h>
+# include USE_TERMINFO
 #endif
 
 #include "colored_string.h"
