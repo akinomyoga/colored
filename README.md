@@ -1,6 +1,6 @@
 # colored
 
-Highlight the output of commands in my preferences
+Highlight the output of commands (with my preferences)
 
 ```bash
 colored ls ...
@@ -12,9 +12,9 @@ colored diff ...
 ### Requirements
 
 - GNU Make
-- C++11 Compiler
+- C++11 compiler
 - POSIX 2003 API
-- ncursesw (optional)
+- `ncursesw` (optional)
 
 ### Download & Build
 
@@ -32,13 +32,13 @@ $ make use_ncurses=no
 
 ### Install
 
-Using the following command The `colored` can be installed to the specified directory (e.g., `/path/to/install` in the following example). If `PREFIX` is not specified, the default install position is `$HOME/.mwg`. To use the `colored` command, please ensure to have `/path/to/install/bin` in your `PATH` environment variable.
+Using the following command The `colored` can be installed to the specified directory (e.g., `/path/to/install` in the following example). If `PREFIX` is not specified, the default install position is `$HOME/.mwg`. To use the `colored` command, please be sure to have `/path/to/install/bin` in your `PATH` environment variable.
 
 ```console
 $ make PREFIX=/path/to/install install
 ```
 
-With the following aliases you will have highlighted outputs of `ls` and `diff`.
+With the following aliases you will have highlighted outputs of `ls` and `diff`. You can define them in your `~/.bashrc` configuration.
 
 ```bash
 alias ls='colored ls'

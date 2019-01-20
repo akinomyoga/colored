@@ -70,6 +70,7 @@ struct read_data {
   std::string mods;
   std::string nlinks;
   std::string user;
+
   std::string space1;
   std::string group;
   std::string space2;
@@ -100,7 +101,7 @@ void read_line(read_data& data, const std::string& line) {
   }
   if (data.mods[0] == 'b' || data.mods[0] == 'c') {
     scanner.read(data.size, "SsSs"); // number, number
-  }else{
+  } else {
     scanner.read(data.size, "Ss");
   }
   scanner.read(data.time, args.flag_time ? "Ss" : "SsSs");
@@ -200,12 +201,12 @@ void color_modifier(line_data& ldata) {
     ldata.mods.set_fc(cc::cyan, 0);
   }
 
-  for (int i = 1;i<=9;i++) {
+  for (int i = 1; i <= 9; i++) {
     switch (ldata.mods[i]) {
-    case 'r': ldata.mods.set_fc(cc::blue,i); break;
-    case 'w': ldata.mods.set_fc(cc::red,i); break;
-    case 'x': ldata.mods.set_fc(cc::green,i); break;
-    case '-': ldata.mods.set_fc(cc::gray,i); break;
+    case 'r': ldata.mods.set_fc(cc::blue, i); break;
+    case 'w': ldata.mods.set_fc(cc::red, i); break;
+    case 'x': ldata.mods.set_fc(cc::green, i); break;
+    case '-': ldata.mods.set_fc(cc::gray, i); break;
     case 't':
       ldata.mods.set_fc(cc::white, i);
       if (ldata.mods[i - 1] == 'w')
@@ -344,7 +345,7 @@ void color_link(line_data& ldata) {
         ldata.link.set_bc(cc::black);
         ldata.link.set_fc(cc::green);
         return;
-      } else if (S_ISVTX&st.st_mode) { // t
+      } else if (S_ISVTX & st.st_mode) { // t
         ldata.link.set_fc(cc::white);
         if (S_IWOTH & st.st_mode) // o+w 他人書込可能
           ldata.link.set_bc(cc::darkG);

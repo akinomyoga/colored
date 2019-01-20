@@ -10,12 +10,12 @@
 
 // from lwiki/lib/lib.ldiff.php
 template<typename F, bool swapped = false>
-static void _ldiff_getpath_wu(
+static void ldiff_getpath_wu(
   std::vector<std::pair<int, int> >& _path,
   F const& equals, int M, int N
 ){
   if (!swapped && M < N) {
-    _ldiff_getpath_wu<F, true>(_path, equals, N, M);
+    ldiff_getpath_wu<F, true>(_path, equals, N, M);
     return;
   }
 
@@ -176,7 +176,7 @@ struct diff_processor {
 
   void output_detailed_diff(std::wstring const& removed, std::wstring const& added) {
     std::vector<std::pair<int,int> > path;
-    _ldiff_getpath_wu(path, [&removed, &added](int i, int j){return removed[i] ==  added[j];}, removed.size(), added.size());
+    ldiff_getpath_wu(path, [&removed, &added] (int i, int j) { return removed[i] ==  added[j]; }, removed.size(), added.size());
     std::size_t index;
 
     // removed
@@ -245,7 +245,7 @@ struct diff_processor {
 
   void output_hank_header(std::wstring const& line) {
     std::size_t const needle = line.find(L" @@", 3);
-    std::size_t const end = needle == line.npos? line.size(): needle + 3;
+    std::size_t const end = needle == line.npos ? line.size() : needle + 3;
 
     std::size_t index = 0;
     std::wcout << termcap_header;
