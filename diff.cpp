@@ -85,19 +85,19 @@ static void ldiff_getpath_wu(
 const wchar_t* termcap_sgr0 = L"\x1b[m";
 const wchar_t* termcap_other = L"\x1b[;1m";
 const wchar_t* termcap_header = L"\x1b[;38;5;21;48;5;189m";
-const wchar_t* termcap_hank_comment = L"\x1b[;1;48;5;189m";
+const wchar_t* termcap_hank_comment = L"\x1b[;1;30;48;5;189m";
 
 const wchar_t* termcap_begin_cntrl = L"\x1b[7m";
 const wchar_t* termcap_end_cntrl = L"\x1b[27m";
 
 const wchar_t* termcap_head = L"\x1b[;38;5;25;48;5;189m";
 
-const wchar_t* termcap_begin_rline = L"\x1b[;48;5;218m";
-const wchar_t* termcap_begin_aline = L"\x1b[;48;5;154m";
-const wchar_t* termcap_begin_rback = L"\x1b[;48;5;225m";
-const wchar_t* termcap_begin_aback = L"\x1b[;48;5;193m";
-const wchar_t* termcap_begin_rword = L"\x1b[;48;5;218m";//217,225
-const wchar_t* termcap_begin_aword = L"\x1b[;48;5;154m";//112,193
+const wchar_t* termcap_begin_rline = L"\x1b[;30;48;5;218m";
+const wchar_t* termcap_begin_aline = L"\x1b[;30;48;5;154m";
+const wchar_t* termcap_begin_rback = L"\x1b[;30;48;5;225m";
+const wchar_t* termcap_begin_aback = L"\x1b[;30;48;5;193m";
+const wchar_t* termcap_begin_rword = L"\x1b[;30;48;5;218m";//217,225
+const wchar_t* termcap_begin_aword = L"\x1b[;30;48;5;154m";//112,193
 
 struct diff_processor {
 
