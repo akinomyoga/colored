@@ -194,6 +194,17 @@ public:
 ft::map_t extmap;
 
 //------------------------------------------------------------------------------
+bool is_modifier(colored_string const& mods) {
+  if (mods.size() != 10 && mods.size() != 11) return false;
+  for (int i = 1; i < 10; i++) {
+    char const c = mods[i];
+    if (c != "rwx"[(i - 1) % 3] &&
+      c != '-' && c != 's' && c != 't')
+      return false;
+  }
+  return true;
+}
+
 void color_modifier(line_data& ldata) {
   if (ldata.mods[0] == 'd') {
     ldata.mods.set_fc(cc::blue, 0);
@@ -388,7 +399,7 @@ void process_line(const std::string& line) {
   read_line(rdata, line);
 
   line_data ldata(rdata);
-  if (ldata.mods.size() != 10 && ldata.mods.size() != 11) {
+  if (!is_modifier(ldata.mods)) {
     puts(line.c_str());
     return;
   }
