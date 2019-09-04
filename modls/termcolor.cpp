@@ -46,6 +46,7 @@ static void put_forecolor(byte c) {
   if (c < 16 && aix_colors) {
     std::putchar('9');
     std::putchar('0' + (c & 007));
+    return;
   }
 
   if (c < 16 && sgr_bright) {
@@ -53,6 +54,7 @@ static void put_forecolor(byte c) {
     std::putchar(';');
     std::putchar('3');
     std::putchar('0' + (c & 007));
+    return;
   }
 
   std::printf("38;5;%u", c);
@@ -68,6 +70,7 @@ static void put_backcolor(byte c) {
     std::putchar('1');
     std::putchar('0');
     std::putchar('0' + (c & 007));
+    return;
   }
 
   if (c < 16 && sgr_bright) {
@@ -75,6 +78,7 @@ static void put_backcolor(byte c) {
     std::putchar(';');
     std::putchar('4');
     std::putchar('0' + (c & 007));
+    return;
   }
 
   std::printf("38;5;%u", c);
