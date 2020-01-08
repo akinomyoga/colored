@@ -3,7 +3,7 @@
 function sub:install-colored {
   local src=$1 dst=$2
 
-  local ls_help=$(ls --help)
+  local ls_help=$(ls --help 2>/dev/null)
 
   if grep -qFe '--time-style=' <<< "$ls_help"; then
     ls_longopt_time_style=1

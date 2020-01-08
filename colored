@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
 colored_share_directory=${MWGDIR:-$HOME/.mwg}/share/colored
+
+ls_type=gnu
 ls_has_longopt_time_style=1
 ls_has_longopt_color=1
+
+if [[ $OSTYPE == darwin* || $OSTYPE == freebsd* || $OSTYPE == bsd* ]]; then
+  ls_type=bsd
+  ls_has_longopt_time_style=
+  ls_has_longopt_color=
+fi
 
 #------------------------------------------------------------------------------
 # util from ble
@@ -10,7 +18,7 @@ ls_has_longopt_color=1
 _ble_bash=$((BASH_VERSINFO[0]*10000+BASH_VERSINFO[1]*100+BASH_VERSINFO[2]))
 if ((_ble_bash>=30100)); then
   function ble/array#push {
-    builtin eval "$1+=(\"\${@:2}\")"
+    IFS=' ' builtin eval "$1+=(\"\${@:2}\")"
   }
 else
   function ble/array#push {
@@ -173,6 +181,9 @@ function colored-ls {
     local -a ls_options=() modls_options=()
     if [[ $ls_has_longopt_time_style ]]; then
       ble/array#push ls_options --time-style=+%010s
+      ble/array#push modls_options -t
+    elif [[ $ls_type == bsd ]]; then
+      ble/array#push ls_options -D %s
       ble/array#push modls_options -t
     fi
 
