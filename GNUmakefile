@@ -8,12 +8,9 @@ all:
 # config
 #
 
-use_ncurses := yes
-
-CXXFLAGS := -O3 -Wall -Wno-parentheses -std=gnu++11
-# CXX      := g++
-# LDFLAGS  :=
-# LIBS     :=
+make_config.mk: ./configure
+	./configure
+include make_config.mk
 
 #------------------------------------------------------------------------------
 #
@@ -37,20 +34,14 @@ all: $(build_directory)/diff.exe
 
 # modls
 
-ifneq ($(use_ncurses),no)
-  ifeq ($(use_ncurses),ncursesw)
-    modls_CXXFLAGS := $(CXXFLAGS) -DUSE_TERMINFO='<ncursesw/term.h>'
-    modls_LIBS := -lncursesw $(LIBS)
-  else
-    modls_CXXFLAGS := $(CXXFLAGS) -DUSE_TERMINFO='<ncurses/term.h>'
-    modls_LIBS := -lncurses $(LIBS)
-  endif
-endif
+modls_CPPFLAGS = $(CPPFLAGS) $(config_CPPFLAGS)
+modls_CXXFLAGS := $(CXXFLAGS) $(config_CXXFLAGS)
+modls_LIBS := $(config_LIBS) $(LIBS)
 
 $(build_directory)/modls.o: modls/modls.cpp | $(build_directory)
-	$(CXX) $(CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
+	$(CXX) $(modls_CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
 $(build_directory)/termcolor.o: modls/termcolor.cpp | $(build_directory)
-	$(CXX) $(CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
+	$(CXX) $(modls_CPPFLAGS) $(modls_CXXFLAGS) -c -o $@ $<
 $(build_directory)/modls.exe: $(build_directory)/modls.o $(build_directory)/termcolor.o
 	$(CXX) $(modls_CXXFLAGS) $(LDFLAGS) -o $@ $^ $(modls_LIBS)
 all: $(build_directory)/modls.exe

@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+function ble/array#push {
+  local __array_name=$1; shift
+  while (($#)); do
+    eval "$__array_name[\${#$__array_name[@]}]=\$1"
+    shift
+  done
+}
+
+source ext/mconf.sh
+mconf_cxx=${CXX:-g++}
+mconf_cxx_options=(-std=gnu++11)
+
+exec 7> make_config.mk
+
+ble/array#push mconf_cxx_options -Wall -Wno-parentheses
+ble/array#push mconf_cxx_options -Os -DNDEBUG -march=native
+# ble/array#push mconf_cxx_options -O3 -s -DNDEBUG
+# ble/array#push mconf_cxx_options -O2 -s -DNDEBUG
+
+#------------------------------------------------------------------------------
+echo "CHECKS"
+
+use_ncurses=
+curses_term_h=
+if mconf/test/header term.h && mconf/test/header curses.h; then
+  use_ncurses='<term.h>'
+  curses_term_h=term.h
+elif mconf/test/header ncursesw/term.h; then
+  use_ncurses='<ncursesw/term.h>'
+  curses_term_h=ncursesw/term.h
+elif mconf/test/header ncurses/term.h; then
+  use_ncurses='<ncurses/term.h>'
+  curses_term_h=ncurses/term.h
+fi
+
+echo 'config_CPPFLAGS :=' >&7
+echo 'config_LIBS :=' >&7
+
+if [[ $curses_term_h != no ]]; then
+  if [[ $curses_term_h != ncurses/term.h ]] && mconf/test/lib ncursesw; then
+    use_ncurses="$use_ncurses, -lncursesw"
+    echo "config_CPPFLAGS += -DUSE_TERMINFO='<$curses_term_h>'" >&7
+    echo 'config_LIBS := -lncursesw $(config_LIBS)' >&7
+  elif [[ $curses_term_h != ncursesw/term.h ]] && mconf/test/lib ncurses; then
+    use_ncurses="$use_ncurses, -lncurses"
+    echo "config_CPPFLAGS += -DUSE_TERMINFO='<$curses_term_h>'" >&7
+    echo 'config_LIBS := -lncurses $(config_LIBS)' >&7
+  else
+    use_ncurses=
+  fi
+fi
+
+echo "config_CXXFLAGS = ${mconf_cxx_options[*]}" >&7
+
+echo
+
+#------------------------------------------------------------------------------
+if [[ $use_ncurses ]]; then
+  use_ncurses=$'\e[94m'$use_ncurses$'\e[m'
+else
+  use_ncurses=$'\e[91mno\e[m'
+fi
+echo "DEPENDENCIES"
+echo "  ncurses: $use_ncurses"
+echo
