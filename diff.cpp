@@ -8,6 +8,8 @@
 #include <utility>
 #include <algorithm>
 
+static const std::size_t DETAILED_DIFF_LIMIT = 10 * 1024 * 1024;
+
 // from lwiki/lib/lib.ldiff.php
 template<typename F, bool swapped = false>
 static void ldiff_getpath_wu(
@@ -175,6 +177,17 @@ struct diff_processor {
   }
 
   void output_detailed_diff(std::wstring const& removed, std::wstring const& added) {
+    // 巨大な時は処理を省略
+    if (removed.size() * added.size() > DETAILED_DIFF_LIMIT) {
+      section_setup(L'-', termcap_begin_rback);
+      for (wchar_t c: removed) section_putchar(c);
+      section_reset();
+      section_setup(L'+', termcap_begin_aback);
+      for (wchar_t c: added) section_putchar(c);
+      section_reset();
+      return;
+    }
+
     std::vector<std::pair<int,int> > path;
     ldiff_getpath_wu(path, [&removed, &added] (int i, int j) { return removed[i] ==  added[j]; }, removed.size(), added.size());
     std::size_t index;
