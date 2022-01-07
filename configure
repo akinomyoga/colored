@@ -38,7 +38,7 @@ fi
 echo 'config_CPPFLAGS :=' >&7
 echo 'config_LIBS :=' >&7
 
-if [[ $curses_term_h != no ]]; then
+if [[ $curses_term_h ]]; then
   if [[ $curses_term_h != ncurses/term.h ]] && mconf/test/lib ncursesw; then
     use_ncurses="$use_ncurses, -lncursesw"
     echo "config_CPPFLAGS += -DUSE_TERMINFO='<$curses_term_h>'" >&7
