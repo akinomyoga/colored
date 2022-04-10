@@ -191,7 +191,7 @@ function colored-ls {
     [[ $opt_no_user  ]] && ble/array#push modls_options -U
     [[ $opt_context  ]] && ble/array#push modls_options -Z
 
-    ls "$@" -l "${ls_options[@]}" | "$colored_share_directory"/modls.exe "${modls_options[@]}"
+    ls -l "${ls_options[@]}" "$@" | "$colored_share_directory"/modls.exe "${modls_options[@]}"
     return "${PIPESTATUS[0]}"
   else
     if [[ $opt_single || ! -t 1 ]]; then
