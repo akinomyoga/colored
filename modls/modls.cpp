@@ -291,7 +291,7 @@ void color_filename(line_data& ldata) {
 //------------------------------------------------------------------------------
 void color_time(line_data& ldata) {
   if (args.flag_time) {
-    std::time_t time = (std::time_t) std::atol(ldata.time.str.c_str());
+    std::time_t const time = (std::time_t) std::atoll(ldata.time.str.c_str());
 
     // format time
     std::tm* dt = std::localtime(&time);
@@ -302,8 +302,8 @@ void color_time(line_data& ldata) {
     ldata.time = buff;
 
     // color time
-    std::time_t now = std::time(NULL);
-    float delta = (float) now - (float) time;
+    std::time_t const now = std::time(NULL);
+    double delta = (double) now - (double) time;
     if (delta < 0) {
       ldata.time.set_fc(cc::yellow);
       ldata.time.set_bc(cc::black);
