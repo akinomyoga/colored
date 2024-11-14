@@ -14,7 +14,7 @@ struct cc {
 
   static const byte gray    = 010;
   static const byte red     = 011;
-  static const byte green   = 012;
+  static const byte lime    = 012;
   static const byte blue    = 014;
   static const byte cyan    = 016;
   static const byte magenta = 015;
@@ -22,12 +22,12 @@ struct cc {
   static const byte white   = 017;
 
   static const byte black   = 000;
-  static const byte darkR   = 001;
-  static const byte darkG   = 002;
-  static const byte darkB   = 004;
-  static const byte darkC   = 006;
-  static const byte darkM   = 005;
-  static const byte darkY   = 003;
+  static const byte brown   = 001;
+  static const byte green   = 002;
+  static const byte navy    = 004;
+  static const byte teal    = 006;
+  static const byte purple  = 005;
+  static const byte olive   = 003;
   static const byte silver  = 007;
 
   static const word cc_default = def|def << 8;

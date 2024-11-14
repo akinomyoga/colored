@@ -199,7 +199,7 @@ bool is_modifier(colored_string const& mods) {
   for (int i = 1; i < 10; i++) {
     char const c = mods[i];
     if (c != "rwx"[(i - 1) % 3] &&
-      c != '-' && c != 's' && c != 't')
+      c != '-' && c != 's' && c != 't' && c != 'T')
       return false;
   }
   return true;
@@ -216,14 +216,14 @@ void color_modifier(line_data& ldata) {
     switch (ldata.mods[i]) {
     case 'r': ldata.mods.set_fc(cc::blue, i); break;
     case 'w': ldata.mods.set_fc(cc::red, i); break;
-    case 'x': ldata.mods.set_fc(cc::green, i); break;
+    case 'x': ldata.mods.set_fc(cc::lime, i); break;
     case '-': ldata.mods.set_fc(cc::gray, i); break;
-    case 't':
+    case 't': case 'T':
       ldata.mods.set_fc(cc::white, i);
       if (ldata.mods[i - 1] == 'w')
-        ldata.mods.set_bc(cc::darkG, i);
+        ldata.mods.set_bc(cc::green, i);
       else
-        ldata.mods.set_bc(cc::darkB, i);
+        ldata.mods.set_bc(cc::navy, i);
       break;
     default:
       ldata.mods.set_fc(cc::white, i);
@@ -238,54 +238,70 @@ void color_filename(line_data& ldata) {
   // filetype and color
   switch (ldata.mods[0]) {
   case 'd':
-    ldata.file.set_fc(cc::blue);
-    ldata.mods.set_fc(cc::blue, 0);
+    ldata.file.set_fc(26); // cc::blue
+    ldata.mods.set_fc(26, 0); // cc::blue
     return;
   case 'l':
     ldata.file.set_fc(cc::cyan);
     ldata.mods.set_fc(cc::cyan, 0);
     return;
   case 'b': // block device
-  case 'c': // character device
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::yellow);
     ldata.mods.set_bc(cc::black, 0);
     ldata.mods.set_fc(cc::yellow, 0);
     return;
-  case 's': // socket ?
+  case 'c': // character device
     ldata.file.set_bc(cc::black);
-    ldata.file.set_fc(cc::green);
+    ldata.file.set_fc(cc::white);
     ldata.mods.set_bc(cc::black, 0);
-    ldata.mods.set_fc(cc::green, 0);
+    ldata.mods.set_fc(cc::white, 0);
     return;
-  case 'p': // pipe (fifo)
+  case 's': // socket ?
     ldata.file.set_bc(cc::black);
     ldata.file.set_fc(cc::cyan);
     ldata.mods.set_bc(cc::black, 0);
     ldata.mods.set_fc(cc::cyan, 0);
     return;
+  case 'p': // pipe (fifo)
+    ldata.file.set_bc(cc::black);
+    ldata.file.set_fc(cc::lime);
+    ldata.mods.set_bc(cc::black, 0);
+    ldata.mods.set_fc(cc::lime, 0);
+    return;
   }
 
-  if (ldata.mods[9] == 't') {
-    ldata.file.set(ldata.mods.get(9));
+  if (ldata.mods[9] == 't' && ldata.mods[9] == 'T') {
+    ldata.file.set_bc(cc::green); // cc::blue
+    ldata.file.set_fc(cc::white);
     return;
-  } else if(ldata.mods[3] == 'x') {
-    ldata.file.set_fc(cc::green);
+  } else if (ldata.mods[3] == 's' ) {
+    ldata.file.set_bc(220); // cc::yellow
+    ldata.file.set_fc(cc::black);
+  } else if (ldata.mods[6] == 's' ) {
+    ldata.file.set_bc(191); // cc::lime
+    ldata.file.set_fc(cc::black);
+  } else if (ldata.mods[3] == 'x') {
+    ldata.file.set_fc(cc::lime);
     return;
   }
 
   // extension
-  ft::map_t::iterator i = extmap.find(get_extension(ldata.file.str));
-  if (i != extmap.end()) switch(i->second) {
-  case ft::image:
-    ldata.file.set_fc(cc::magenta);
-    return;
-  case ft::archive:
-    ldata.file.set_fc(cc::red);
-    return;
-  case ft::media:
-    ldata.file.set_fc(cc::darkC);
-    return;
+  if (ldata.mods[0] == '-') {
+    ft::map_t::iterator i = extmap.find(get_extension(ldata.file.str));
+    if (i != extmap.end()) {
+      switch(i->second) {
+      case ft::image:
+        ldata.file.set_fc(cc::magenta);
+        return;
+      case ft::archive:
+        ldata.file.set_fc(cc::red);
+        return;
+      case ft::media:
+        ldata.file.set_fc(cc::teal);
+        return;
+      }
+    }
   }
 }
 //------------------------------------------------------------------------------
@@ -312,17 +328,17 @@ void color_time(line_data& ldata) {
     } else if (delta <= 5) {
       ldata.time.set_fc(cc::cyan);
     } else if (delta <= 15) {
-      ldata.time.set_fc(cc::green);
+      ldata.time.set_fc(cc::lime);
     } else if ((delta /= 60) <= 1) {
       ldata.time.set_fc(cc::blue);
     } else if (delta <= 6) {
-      ldata.time.set_fc(cc::darkC);
+      ldata.time.set_fc(cc::teal);
     } else if ((delta /= 24) <= 1) {
-      ldata.time.set_fc(cc::darkB);
+      ldata.time.set_fc(cc::navy);
     } else if (delta <= 7) {
-      ldata.time.set_fc(cc::darkM);
+      ldata.time.set_fc(cc::purple);
     } else if (delta <= 30) {
-      ldata.time.set_fc(cc::darkY);
+      ldata.time.set_fc(cc::olive);
     }
   }
 }
@@ -354,17 +370,17 @@ void color_link(line_data& ldata) {
         return;
       } else if (S_ISSOCK(st.st_mode)) { // s
         ldata.link.set_bc(cc::black);
-        ldata.link.set_fc(cc::green);
+        ldata.link.set_fc(cc::lime);
         return;
       } else if (S_ISVTX & st.st_mode) { // t
         ldata.link.set_fc(cc::white);
         if (S_IWOTH & st.st_mode) // o+w 他人書込可能
-          ldata.link.set_bc(cc::darkG);
+          ldata.link.set_bc(cc::green);
         else
-          ldata.link.set_bc(cc::darkB);
+          ldata.link.set_bc(cc::navy);
         return;
       } else if ((S_IXUSR | S_IXGRP | S_IXOTH) & st.st_mode) { // x
-        ldata.link.set_fc(cc::green);
+        ldata.link.set_fc(cc::lime);
         return;
       }
     } else {
@@ -387,7 +403,7 @@ void color_link(line_data& ldata) {
       ldata.link.set_fc(cc::red);
       return;
     case ft::media:
-      ldata.link.set_fc(cc::darkC);
+      ldata.link.set_fc(cc::teal);
       return;
     }
   }
