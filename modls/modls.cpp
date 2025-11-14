@@ -198,9 +198,10 @@ bool is_modifier(colored_string const& mods) {
   if (mods.size() != 10 && mods.size() != 11) return false;
   for (int i = 1; i < 10; i++) {
     char const c = mods[i];
-    if (c != "rwx"[(i - 1) % 3] &&
-      c != '-' && c != 's' && c != 't' && c != 'T')
-      return false;
+    if (c == "rwx"[(i - 1) % 3] || c == '-') continue;
+    if ((i == 3 || i == 6) && (c == 's' || c == 'S')) continue;
+    if (i == 9 && (c == 't' || c == 'T')) continue;
+    return false;
   }
   return true;
 }
