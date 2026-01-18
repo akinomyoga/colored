@@ -346,7 +346,17 @@ struct diff_processor {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
-#if defined(__CYGWIN__) || defined(__MINGW32__)
+#if defined(__MINGW32__)
+  // * 2026-01-19 We have been using this branch also for defined(__CYGWIN__).
+  //   However, a recent version of Cygwin seems to have started to offer the
+  //   proper C++ interfaces, and "std::setlocale(LC_CTYPE, "")" stopped
+  //   working.
+  //
+  //   However, There does not seem to be any pre-defined macros that can be
+  //   used to switch the code depending on the Cygwin version, which is
+  //   strange.  Because Cygwin can be updated regardless of the Windows
+  //   system, we assume that no user uses an old version of Cygwin, and
+  //   entirely switch to the correct version.
   std::setlocale(LC_CTYPE, "");
 #else
   std::locale::global(std::locale(std::locale::classic(), std::locale(""), std::locale::ctype));
